@@ -1,7 +1,7 @@
 package com.gbc.dormio_mobile_app.network
 
 import android.content.Context
-import com.gbc.dormio_mobile_app.util.Constants
+import com.gbc.dormio_mobile_app.utils.Constants
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -17,16 +17,16 @@ object RetrofitClient {
         appContext = context.applicationContext
     }
 
-    private val retrofit by lazy {
+    private val retrofit: Retrofit by lazy {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
 
         val authInterceptor = Interceptor { chain ->
             val token = TokenManager.getToken(appContext)
-            val request = chain.request().newBuilder()
-                .apply { if (token != null) header("Authorization", "Bearer $token") }
-                .build()
+            val requestBuilder = chain.request().newBuilder()
+            if (token != null) requestBuilder.header("Authorization", "Bearer $token")
+            val request = requestBuilder.build()
             chain.proceed(request)
         }
 
