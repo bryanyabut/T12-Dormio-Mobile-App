@@ -51,3 +51,10 @@ data class DeviceTokenUserDto(
     val email: String,
     @SerializedName("deviceToken") val deviceToken: String?
 )
+
+data class AuthUiState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val user: UserDto? = null,
+    val token: String? = null
+)
