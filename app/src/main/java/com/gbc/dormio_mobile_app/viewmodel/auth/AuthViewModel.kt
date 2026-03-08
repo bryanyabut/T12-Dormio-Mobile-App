@@ -10,7 +10,7 @@ import com.gbc.dormio_mobile_app.repository.AuthRepository
 import kotlinx.coroutines.launch
 
 class AuthViewModel(
-    private val repository: AuthRepository,
+    private val repository: AuthRepository
 ): ViewModel(){
     private val _loginResult = MutableLiveData<NetworkResult<LoginResponse>>()
     val loginResult: LiveData<NetworkResult<LoginResponse>> = _loginResult
