@@ -15,7 +15,8 @@ object Constants {
     // STUDENT ENDPOINTS
     const val API_MAINTENANCE_REQUESTS_CREATE = "maintenance/create"
     const val API_MAINTENANCE_MY_REQUESTS = "maintenance/myReq"
-    const val API_MAINTENANCE_REQUEST_DETAIL_STUDENT = "maintenance/student/:id"
+        const val API_MAINTENANCE_REQUEST_DETAIL_STUDENT = "maintenance/myReq"
+    const val API_MAINTENANCE_REQUEST_UPDATE_STUDENT = "maintenance/student/:id"
 
     // ADMIN ENDPOINTS
     const val API_MAINTENANCE_REQUESTS_ALL = "maintenance/"

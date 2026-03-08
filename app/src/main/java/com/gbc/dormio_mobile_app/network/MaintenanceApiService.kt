@@ -8,7 +8,6 @@ import retrofit2.http.*
 interface MaintenanceApiService {
 
     //Student endpoints
-
     @GET(Constants.API_MAINTENANCE_REQUESTS_CREATE)
     suspend fun createRequest(@Body request: CreateMaintenanceRequestDto): Response<MaintenanceResponse>
 
@@ -17,6 +16,12 @@ interface MaintenanceApiService {
         @Query("status") status: String? = null,
         @Query("urgency") urgency: String? = null
     ): Response<MaintenanceListResponse>
+
+    @GET(Constants.API_MAINTENANCE_REQUEST_UPDATE_STUDENT)
+    suspend fun updateRequestStudent(
+        @Path("id") requestId: String,
+        @Body request: UpdateMaintenanceRequestDto
+    ): Response<MaintenanceResponse>
 
     @GET(Constants.API_MAINTENANCE_REQUEST_DETAIL_STUDENT)
     suspend fun getRequestDetailStudent(@Path("id") requestId: String): Response<MaintenanceResponse>
