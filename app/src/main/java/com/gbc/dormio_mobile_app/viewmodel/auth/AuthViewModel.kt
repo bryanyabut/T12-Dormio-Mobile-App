@@ -3,10 +3,10 @@ package com.gbc.dormio_mobile_app.viewmodel.auth
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gbc.dormio_mobile_app.model.*
+import com.gbc.dormio_mobile_app.data.model.AuthUiState
 import com.gbc.dormio_mobile_app.network.TokenManager
 import com.gbc.dormio_mobile_app.utils.NetworkResult
-import com.gbc.dormio_mobile_app.repository.AuthRepository
+import com.gbc.dormio_mobile_app.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

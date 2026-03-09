@@ -1,6 +1,13 @@
 package com.gbc.dormio_mobile_app.network
 
-import com.gbc.dormio_mobile_app.model.*
+import com.gbc.dormio_mobile_app.data.model.DeviceTokenRequest
+import com.gbc.dormio_mobile_app.data.model.DeviceTokenResponse
+import com.gbc.dormio_mobile_app.data.model.LoginRequest
+import com.gbc.dormio_mobile_app.data.model.LoginResponse
+import com.gbc.dormio_mobile_app.data.model.RegisterRequest
+import com.gbc.dormio_mobile_app.data.model.RegisterResponse
+import com.gbc.dormio_mobile_app.data.model.UserDto
+import com.gbc.dormio_mobile_app.utils.Constants
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -20,12 +27,12 @@ interface AuthApiService {
         @Path("id") userId: String
     ): Response<UserDto>
 
-    @POST("auth/login")
+    @POST(Constants.API_AUTH_LOGIN)
     suspend fun login(
         @Body request: LoginRequest
     ): Response<LoginResponse>
 
-    @POST("auth/register")
+    @POST(Constants.API_AUTH_REGISTER)
     suspend fun register(
         @Body request: RegisterRequest
     ): Response<RegisterResponse>
