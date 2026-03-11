@@ -9,6 +9,7 @@ import com.gbc.dormio_mobile_app.data.model.UpdateMaintenanceStatusDto
 import com.gbc.dormio_mobile_app.network.MaintenanceApiService
 import com.gbc.dormio_mobile_app.utils.NetworkResult
 import com.gbc.dormio_mobile_app.utils.safeApiCall
+import com.gbc.dormio_mobile_app.data.model.MaintenanceQuery
 
 class MaintenanceRepository (private val apiService: MaintenanceApiService) {
 
@@ -16,8 +17,18 @@ class MaintenanceRepository (private val apiService: MaintenanceApiService) {
         return safeApiCall { apiService.createRequest(request) }
     }
 
-    suspend fun getMyRequests(status: String? = null, urgency: String? = null): NetworkResult<MaintenanceListResponse> {
-        return safeApiCall { apiService.getMyRequests(status, urgency) }
+    suspend fun getMyRequests(query: MaintenanceQuery): NetworkResult<MaintenanceListResponse> {
+        return safeApiCall {
+            apiService.getMyRequests(
+                search = query.search,
+                status = query.status,
+                urgency = query.urgency,
+                page = query.page,
+                limit = query.limit,
+                sortBy = query.sort,
+                sortOrder = query.order
+            )
+        }
     }
 
     suspend fun updateRequestStudent(requestId: String, request: UpdateMaintenanceRequestDto): NetworkResult<MaintenanceResponse> {
@@ -29,8 +40,18 @@ class MaintenanceRepository (private val apiService: MaintenanceApiService) {
     }
 
     // Admin functions
-    suspend fun getAllRequests(status: String? = null, urgency: String? = null): NetworkResult<MaintenanceListResponse> {
-        return safeApiCall { apiService.getAllRequests(status, urgency) }
+    suspend fun getAllRequests(query: MaintenanceQuery): NetworkResult<MaintenanceListResponse> {
+        return safeApiCall {
+            apiService.getAllRequests(
+                search = query.search,
+                status = query.status,
+                urgency = query.urgency,
+                page = query.page,
+                limit = query.limit,
+                sortBy = query.sort,
+                sortOrder = query.order
+            )
+        }
     }
 
     suspend fun getRequestDetailAdmin(requestId: String): NetworkResult<MaintenanceResponse> {

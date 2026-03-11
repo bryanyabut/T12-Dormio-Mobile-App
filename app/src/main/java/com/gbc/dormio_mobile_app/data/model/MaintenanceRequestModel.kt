@@ -4,8 +4,8 @@ data class MaintenanceRequestDto(
     val id: String,
     val title: String,
     val description: String,
-    val urgency: String,
-    val status: String,
+    val urgency: UrgencyLevel,
+    val status: RequestStatus,
     val createdAt: String,
     val updatedAt: String,
     val resolvedAt: String?,
@@ -21,7 +21,7 @@ data class CreateMaintenanceRequestDto(
 data class UpdateMaintenanceRequestDto(
     val title: String? = null,
     val description: String? = null,
-    val urgency: String? = null
+    val urgency: String? = null,
 )
 
 data class UpdateMaintenanceStatusDto(
@@ -30,12 +30,15 @@ data class UpdateMaintenanceStatusDto(
 
 data class MaintenanceResponse(
     val success: Boolean,
-    val data: MaintenanceRequestDto,
+    val data: MaintenanceRequestDto
 )
 
 data class MaintenanceListResponse(
     val success: Boolean,
     val data: List<MaintenanceRequestDto>,
+    val page: Int,
+    val totalPages: Int,
+    val totalItems: Int
 )
 
 data class MaintenanceAllReqUiState(
@@ -43,7 +46,9 @@ data class MaintenanceAllReqUiState(
     val errorMessage: String? = null,
     val maintenanceRequests: List<MaintenanceRequestDto> = emptyList(),
     val filterStatus: String? = null,
-    val filterUrgency: String? = null
+    val filterUrgency: String? = null,
+    val currentPage: Int = 1,
+    val hasMorePages: Boolean = true
 )
 
 data class MaintenanceDetailUiState(

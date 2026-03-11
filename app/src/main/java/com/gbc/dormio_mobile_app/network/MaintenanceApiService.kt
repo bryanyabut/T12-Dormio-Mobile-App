@@ -17,8 +17,13 @@ interface MaintenanceApiService {
 
     @GET(Constants.API_MAINTENANCE_MY_REQUESTS)
     suspend fun getMyRequests(
+        @Query("search") search: String? = null,
         @Query("status") status: String? = null,
-        @Query("urgency") urgency: String? = null
+        @Query("urgency") urgency: String? = null,
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 20,
+        @Query("sortBy") sortBy: String = "createdAt",
+        @Query("sortOrder") sortOrder: String = "desc"
     ): Response<MaintenanceListResponse>
 
     @GET(Constants.API_MAINTENANCE_REQUEST_DETAIL_STUDENT)
@@ -33,8 +38,13 @@ interface MaintenanceApiService {
     //Admin endpoints
     @GET(Constants.API_MAINTENANCE_REQUESTS_ALL)
     suspend fun getAllRequests(
+        @Query("search") search: String? = null,
         @Query("status") status: String? = null,
-        @Query("urgency") urgency: String? = null
+        @Query("urgency") urgency: String? = null,
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 20,
+        @Query("sortBy") sortBy: String = "createdAt",
+        @Query("sortOrder") sortOrder: String = "desc"
     ): Response<MaintenanceListResponse>
 
     @GET(Constants.API_MAINTENANCE_REQUEST_DETAIL_ADMIN)
