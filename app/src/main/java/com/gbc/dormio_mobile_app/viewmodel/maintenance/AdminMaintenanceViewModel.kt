@@ -8,7 +8,6 @@ import com.gbc.dormio_mobile_app.data.model.MaintenanceDetailUiState
 import com.gbc.dormio_mobile_app.data.model.MaintenanceFormUiState
 import com.gbc.dormio_mobile_app.data.model.MaintenanceQuery
 import com.gbc.dormio_mobile_app.data.model.UpdateMaintenanceRequestDto
-import com.gbc.dormio_mobile_app.data.model.UpdateMaintenanceStatusDto
 import com.gbc.dormio_mobile_app.data.repository.MaintenanceRepository
 import com.gbc.dormio_mobile_app.utils.NetworkResult
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,25 +38,58 @@ class AdminMaintenanceViewModel(private val repository: MaintenanceRepository): 
                 isLoading = true,
                 errorMessage = null
             )
-            Log.d(TAG, "Fetching requests with status: ${query.status} and urgency: ${query.urgency}")
+            Log.d("StudentMaintenanceViewModel", "Fetching requests with status: ${query.status} and urgency: ${query.urgency}")
 
             val result = repository.getAllRequests(query)
 
             if (result is NetworkResult.Success) {
-                Log.d(TAG, "Fetched ${result.data.data.size} requests")
+                Log.d("StudentMaintenanceViewModel", "Fetched ${result.data.data.size} requests")
+                val newItems = result.data.data
+
+                // If this is page 1, replace; otherwise append
+                val updatedList = if (query.page <= 1) {
+                    newItems
+                } else {
+                    _allReqState.value.maintenanceRequests + newItems
+                }
+
+                val hasMore = newItems.size >= query.limit
+
                 _allReqState.value = _allReqState.value.copy(
-                    maintenanceRequests = result.data.data,
+                    maintenanceRequests = updatedList,
                     isLoading = false,
                     filterStatus = query.status,
-                    filterUrgency = query.urgency
+                    filterUrgency = query.urgency,
+                    currentPage = query.page,
+                    hasMorePages = hasMore
                 )
             }
             else if (result is NetworkResult.Error) {
-                Log.e(TAG, "Error fetching requests: ${result.apiError.message}")
-                _allReqState.value = _allReqState.value.copy(
-                    errorMessage = result.apiError.message ?: "An error occurred",
-                    isLoading = false
-                )
+                Log.e("StudentMaintenanceViewModel", "Error fetching requests: ${result.apiError.message}")
+                val apiMsg = result.apiError.message ?: "An error occurred"
+
+                if (apiMsg.contains("no maintenance requests", ignoreCase = true)) {
+                    if (query.page > 1) {
+                        _allReqState.value = _allReqState.value.copy(
+                            isLoading = false,
+                            hasMorePages = false,
+                            errorMessage = null
+                        )
+                    } else {
+                        _allReqState.value = _allReqState.value.copy(
+                            maintenanceRequests = emptyList(),
+                            isLoading = false,
+                            errorMessage = null,
+                            currentPage = 1,
+                            hasMorePages = false
+                        )
+                    }
+                } else {
+                    _allReqState.value = _allReqState.value.copy(
+                        errorMessage = apiMsg,
+                        isLoading = false
+                    )
+                }
             }
         }
     }
@@ -101,6 +133,7 @@ class AdminMaintenanceViewModel(private val repository: MaintenanceRepository): 
                         requestDetail = result.data.data,
                         isLoading = false
                     )
+                    refresh()
                 }
 
                 is NetworkResult.Error -> {
@@ -163,6 +196,7 @@ class AdminMaintenanceViewModel(private val repository: MaintenanceRepository): 
         viewModelScope.launch {
             _formState.value = _formState.value.copy(isLoading = true)
             Log.d(TAG, "Updating request ID: $requestId to status: $status")
+            refresh()
 
             val result = repository.updateRequestStatus(requestId, status)
             when (result) {
@@ -172,8 +206,6 @@ class AdminMaintenanceViewModel(private val repository: MaintenanceRepository): 
                         successMessage = "Request status updated successfully",
                         isLoading = false
                     )
-
-                    refresh()
                 }
 
                 is NetworkResult.Error -> {
