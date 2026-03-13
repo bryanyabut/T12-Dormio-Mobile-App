@@ -29,7 +29,6 @@ class AuthRepository(private val authService: AuthApiService) {
                 lastName,
                 role
             )
-        ) }
+        )}
     }
-
 }

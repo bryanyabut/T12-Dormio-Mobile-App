@@ -17,6 +17,9 @@ import kotlinx.coroutines.launch
 import com.gbc.dormio_mobile_app.utils.NetworkResult
 
 class StudentMaintenanceViewModel(private val repository: MaintenanceRepository): ViewModel() {
+    companion object {
+        private const val TAG = "StudentMaintenanceVM"
+    }
 
     private val _allReqState = MutableStateFlow(MaintenanceAllReqUiState())
     val allReqUiState: StateFlow<MaintenanceAllReqUiState> = _allReqState.asStateFlow()
@@ -43,19 +46,51 @@ class StudentMaintenanceViewModel(private val repository: MaintenanceRepository)
 
             if (result is NetworkResult.Success) {
                 Log.d("StudentMaintenanceViewModel", "Fetched ${result.data.data.size} requests")
+                val newItems = result.data.data
+
+                val updatedList = if (query.page <= 1) {
+                    newItems
+                } else {
+                    _allReqState.value.maintenanceRequests + newItems
+                }
+
+                val hasMore = newItems.size >= query.limit
+
                 _allReqState.value = _allReqState.value.copy(
-                    maintenanceRequests = result.data.data,
+                    maintenanceRequests = updatedList,
                     isLoading = false,
                     filterStatus = query.status,
-                    filterUrgency = query.urgency
+                    filterUrgency = query.urgency,
+                    currentPage = query.page,
+                    hasMorePages = hasMore
                 )
             }
             else if (result is NetworkResult.Error) {
                 Log.e("StudentMaintenanceViewModel", "Error fetching requests: ${result.apiError.message}")
-                _allReqState.value = _allReqState.value.copy(
-                    errorMessage = result.apiError.message ?: "An error occurred",
-                    isLoading = false
-                )
+                val apiMsg = result.apiError.message ?: "An error occurred"
+
+                if (apiMsg.contains("no maintenance requests", ignoreCase = true)) {
+                    if (query.page > 1) {
+                        _allReqState.value = _allReqState.value.copy(
+                            isLoading = false,
+                            hasMorePages = false,
+                            errorMessage = null
+                        )
+                    } else {
+                        _allReqState.value = _allReqState.value.copy(
+                            maintenanceRequests = emptyList(),
+                            isLoading = false,
+                            errorMessage = null,
+                            currentPage = 1,
+                            hasMorePages = false
+                        )
+                    }
+                } else {
+                    _allReqState.value = _allReqState.value.copy(
+                        errorMessage = apiMsg,
+                        isLoading = false
+                    )
+                }
             }
         }
     }
@@ -77,10 +112,19 @@ class StudentMaintenanceViewModel(private val repository: MaintenanceRepository)
 
     fun loadNextPage() {
         if (_allReqState.value.isLoading) return
+        if (!_allReqState.value.hasMorePages) return
 
         val nextPage = currentQuery.page + 1
         val updatedQuery = currentQuery.copy(page = nextPage)
         fetchMyRequests(updatedQuery)
+    }
+
+    fun clearFormState() {
+        _formState.value = _formState.value.copy(
+            successMessage = null,
+            errorMessage = null,
+            isLoading = false
+        )
     }
 
     fun refresh() {
@@ -110,9 +154,7 @@ class StudentMaintenanceViewModel(private val repository: MaintenanceRepository)
                 }
 
                 is NetworkResult.Loading -> {
-                    _detailReqState.value = _detailReqState.value.copy(
-                        isLoading = true
-                    )
+                    _detailReqState.value = _detailReqState.value.copy(isLoading = true)
                 }
             }
         }
@@ -132,6 +174,7 @@ class StudentMaintenanceViewModel(private val repository: MaintenanceRepository)
                         isLoading = false
                     )
 
+                    fetchMyRequests()
                     refresh()
                 }
 
@@ -176,6 +219,39 @@ class StudentMaintenanceViewModel(private val repository: MaintenanceRepository)
 
                 is NetworkResult.Error -> {
                     Log.e("StudentVM", "Error updating request: ${result.apiError.message}")
+                    _formState.value = _formState.value.copy(
+                        errorMessage = result.apiError.message ?: "An error occurred",
+                        isLoading = false
+                    )
+                }
+
+                is NetworkResult.Loading -> {
+                    _formState.value = _formState.value.copy(
+                        isLoading = true
+                    )
+                }
+            }
+        }
+    }
+
+    fun deleteRequest(requestId: String) {
+        viewModelScope.launch {
+            _formState.value = _formState.value.copy(isLoading = true)
+            Log.d(TAG, "Deleting request ID: $requestId")
+
+            when (val result = repository.deleteRequest(requestId)) {
+                is NetworkResult.Success -> {
+                    Log.d(TAG, "Request deleted successfully with ID: $requestId")
+                    _formState.value = _formState.value.copy(
+                        successMessage = "Request deleted successfully",
+                        isLoading = false
+                    )
+
+                    refresh()
+                }
+
+                is NetworkResult.Error -> {
+                    Log.e(TAG, "Error deleting request: ${result.apiError.message}")
                     _formState.value = _formState.value.copy(
                         errorMessage = result.apiError.message ?: "An error occurred",
                         isLoading = false

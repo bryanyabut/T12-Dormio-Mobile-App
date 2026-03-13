@@ -74,3 +74,8 @@ enum class RequestStatus(val value: String) {
     IN_PROGRESS("IN_PROGRESS"),
     RESOLVED("RESOLVED")
 }
+
+enum class UserRole(val value: String) {
+    STUDENT("STUDENT"),
+    ADMIN("ADMIN")
+}
