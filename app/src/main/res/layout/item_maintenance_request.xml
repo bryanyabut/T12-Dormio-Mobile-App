@@ -42,28 +42,40 @@
 
         <LinearLayout
             android:orientation="horizontal"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="4dp">
 
             <Button
-                android:id="@+id/btnUpdate"
+                android:id="@+id/btnAccept"
                 android:text="Accept"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <Button
+                android:id="@+id/btnResolved"
+                android:text="Resolved"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"/>
 
             <Button
                 android:id="@+id/btnDetail"
                 android:text="Details"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"/>
 
             <Button
                 android:id="@+id/btnDelete"
                 android:text="Delete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"/>
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"/>
         </LinearLayout>
 
     </LinearLayout>

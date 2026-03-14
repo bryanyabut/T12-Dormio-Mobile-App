@@ -230,7 +230,7 @@ class MaintenanceListFragment : Fragment(R.layout.fragment_maintenance_list) {
 
         // Handle delete
         btnDelete.setOnClickListener {
-            studentViewModel.deleteRequest(requestId) // you need to implement deleteRequest in ViewModel
+            studentViewModel.deleteRequest(requestId)
             dialog.dismiss()
         }
 
@@ -290,7 +290,7 @@ class MaintenanceListFragment : Fragment(R.layout.fragment_maintenance_list) {
     // determine user role
     private fun determineUserRole() {
 
-        // Example: replace with your real user session logic
+        // TODO: replace real user session logic
         val role = arguments?.getString("user_role") ?: "STUDENT"
         isAdmin = role == "ADMIN"
     }
@@ -300,10 +300,16 @@ class MaintenanceListFragment : Fragment(R.layout.fragment_maintenance_list) {
 
         adapter = MaintenanceAdapter(
             showAdminButtons = isAdmin,
-            onUpdateStatus = { request ->
+            onAcceptStatus = { request ->
                 adminViewModel.updateRequestStatus(
                     request.id,
                     RequestStatus.IN_PROGRESS.value
+                )
+            },
+            onResolvedStatus = { request ->
+                adminViewModel.updateRequestStatus(
+                    request.id,
+                    RequestStatus.RESOLVED.value
                 )
             },
             onDetail = { requestId ->
