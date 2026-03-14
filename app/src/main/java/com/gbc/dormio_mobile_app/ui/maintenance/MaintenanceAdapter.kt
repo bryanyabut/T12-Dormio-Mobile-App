@@ -12,7 +12,8 @@ import com.gbc.dormio_mobile_app.data.model.MaintenanceRequestDto
 
 class MaintenanceAdapter(
     private val showAdminButtons: Boolean = false,
-    private val onUpdateStatus: ((MaintenanceRequestDto) -> Unit)? = null,
+    private val onAcceptStatus: ((MaintenanceRequestDto) -> Unit)? = null,
+    private val onResolvedStatus: ((MaintenanceRequestDto) -> Unit)? = null,
     private val onDetail: ((String) -> Unit)? = null,
     private val onDelete: ((MaintenanceRequestDto) -> Unit)? = null
 ) : RecyclerView.Adapter<MaintenanceAdapter.MaintenanceViewHolder>() {
@@ -42,7 +43,8 @@ class MaintenanceAdapter(
         private val tvDescription: TextView = itemView.findViewById(R.id.tvDescription)
         private val tvStatus: TextView = itemView.findViewById(R.id.tvStatus)
         private val tvUrgency: TextView = itemView.findViewById(R.id.tvUrgency)
-        private val btnUpdate: Button = itemView.findViewById(R.id.btnUpdate)
+        private val btnAccept: Button = itemView.findViewById(R.id.btnAccept)
+        private val btnResolved: Button = itemView.findViewById(R.id.btnResolved)
         private val btnDetail: Button = itemView.findViewById(R.id.btnDetail)
         private val btnDelete: Button = itemView.findViewById(R.id.btnDelete)
 
@@ -52,10 +54,12 @@ class MaintenanceAdapter(
             tvStatus.text = request.status.value
             tvUrgency.text = request.urgency.value
 
-            btnUpdate.visibility = if (showAdminButtons) View.VISIBLE else View.GONE
+            btnAccept.visibility = if (showAdminButtons) View.VISIBLE else View.GONE
+            btnResolved.visibility = if (showAdminButtons) View.VISIBLE else View.GONE
             btnDelete.visibility = if (showAdminButtons) View.VISIBLE else View.GONE
 
-            btnUpdate.setOnClickListener { onUpdateStatus?.invoke(request) }
+            btnAccept.setOnClickListener { onAcceptStatus?.invoke(request) }
+            btnResolved.setOnClickListener { onResolvedStatus?.invoke(request) }
             btnDetail.setOnClickListener { onDetail?.invoke(request.id) }
             btnDelete.setOnClickListener { onDelete?.invoke(request) }
         }

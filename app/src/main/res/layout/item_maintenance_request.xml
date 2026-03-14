@@ -47,16 +47,24 @@
             android:paddingTop="4dp">
 
             <Button
-                android:id="@+id/btnUpdate"
+                android:id="@+id/btnAccept"
                 android:text="Accept"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <Button
+                android:id="@+id/btnResolved"
+                android:text="Resolved"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"/>
+
+            <Button
                 android:id="@+id/btnDetail"
                 android:text="Details"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"/>
 
             <Button
                 android:id="@+id/btnDelete"
