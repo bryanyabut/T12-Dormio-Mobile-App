@@ -10,7 +10,7 @@ import android.widget.Spinner
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,17 +18,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gbc.dormio_mobile_app.R
 import com.gbc.dormio_mobile_app.data.model.MaintenanceQuery
 import com.gbc.dormio_mobile_app.data.model.RequestStatus
-import com.gbc.dormio_mobile_app.data.repository.MaintenanceRepository
-import com.gbc.dormio_mobile_app.network.RetrofitClient
 import com.gbc.dormio_mobile_app.viewmodel.maintenance.AdminMaintenanceViewModel
-import com.gbc.dormio_mobile_app.viewmodel.maintenance.MaintenanceViewModelFactory
 import com.gbc.dormio_mobile_app.viewmodel.maintenance.StudentMaintenanceViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MaintenanceListFragment : Fragment(R.layout.fragment_maintenance_list) {
 
-    private lateinit var studentViewModel: StudentMaintenanceViewModel
-    private lateinit var adminViewModel: AdminMaintenanceViewModel
+    private val studentViewModel: StudentMaintenanceViewModel by viewModels()
+    private val adminViewModel: AdminMaintenanceViewModel by viewModels()
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: MaintenanceAdapter
@@ -44,19 +43,10 @@ class MaintenanceListFragment : Fragment(R.layout.fragment_maintenance_list) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val repository = MaintenanceRepository(RetrofitClient.maintenanceApiService)
-        val factory = MaintenanceViewModelFactory(repository)
-
         searchEditText = view.findViewById(R.id.searchEditText)
         statusSpinner = view.findViewById(R.id.statusSpinner)
         urgencySpinner = view.findViewById(R.id.urgencySpinner)
         createButton = view.findViewById(R.id.btnCreateRequest)
-
-        studentViewModel = ViewModelProvider(this, factory)
-            .get(StudentMaintenanceViewModel::class.java)
-
-        adminViewModel = ViewModelProvider(this, factory)
-            .get(AdminMaintenanceViewModel::class.java)
 
         recyclerView = view.findViewById(R.id.recyclerMaintenance)
 

@@ -7,14 +7,18 @@ import com.gbc.dormio_mobile_app.data.model.AuthUiState
 import com.gbc.dormio_mobile_app.network.TokenManager
 import com.gbc.dormio_mobile_app.utils.NetworkResult
 import com.gbc.dormio_mobile_app.data.repository.AuthRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AuthViewModel(
+@HiltViewModel
+class AuthViewModel @Inject constructor(
     private val repository: AuthRepository,
-    private val appContext: Context
+    @param:ApplicationContext private val appContext: Context
 ): ViewModel(){
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()

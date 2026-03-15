@@ -10,12 +10,17 @@ import com.gbc.dormio_mobile_app.data.model.MaintenanceQuery
 import com.gbc.dormio_mobile_app.data.model.UpdateMaintenanceRequestDto
 import com.gbc.dormio_mobile_app.data.repository.MaintenanceRepository
 import com.gbc.dormio_mobile_app.utils.NetworkResult
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AdminMaintenanceViewModel(private val repository: MaintenanceRepository): ViewModel() {
+@HiltViewModel
+class AdminMaintenanceViewModel @Inject constructor(
+    private val repository: MaintenanceRepository
+): ViewModel() {
 
     var TAG = "AdminMaintenanceViewModel"
     private val _allReqState = MutableStateFlow(MaintenanceAllReqUiState())

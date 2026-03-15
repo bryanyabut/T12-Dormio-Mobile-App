@@ -10,8 +10,11 @@ import com.gbc.dormio_mobile_app.network.MaintenanceApiService
 import com.gbc.dormio_mobile_app.utils.NetworkResult
 import com.gbc.dormio_mobile_app.utils.safeApiCall
 import com.gbc.dormio_mobile_app.data.model.MaintenanceQuery
+import javax.inject.Inject
 
-class MaintenanceRepository (private val apiService: MaintenanceApiService) {
+class MaintenanceRepository @Inject constructor(
+    private val apiService: MaintenanceApiService
+) {
 
     suspend fun createRequest(request: CreateMaintenanceRequestDto): NetworkResult<MaintenanceResponse> {
         return safeApiCall { apiService.createRequest(request) }
