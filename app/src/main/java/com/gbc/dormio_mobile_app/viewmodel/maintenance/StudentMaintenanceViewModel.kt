@@ -15,8 +15,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.gbc.dormio_mobile_app.utils.NetworkResult
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class StudentMaintenanceViewModel(private val repository: MaintenanceRepository): ViewModel() {
+@HiltViewModel
+class StudentMaintenanceViewModel @Inject constructor(
+    private val repository: MaintenanceRepository
+): ViewModel() {
     companion object {
         private const val TAG = "StudentMaintenanceVM"
     }
