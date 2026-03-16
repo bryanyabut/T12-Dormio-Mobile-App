@@ -1,7 +1,45 @@
 package com.gbc.dormio_mobile_app
 
 import android.app.Application
+import android.util.Log
+import com.gbc.dormio_mobile_app.network.FcmTokenManager
+import com.google.firebase.FirebaseApp
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltAndroidApp
-class DormioApp : Application()
+class DormioApp : Application(){
+    @Inject
+    lateinit var fcmTokenManager: FcmTokenManager
+
+    override fun onCreate() {
+        super.onCreate()
+
+        FirebaseApp.initializeApp(this)
+
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener { task ->
+                if (!task.isSuccessful){
+                    Log.w("FCM", "Fetching FCM registration token failed", task.exception)
+                    return@addOnCompleteListener
+                }
+
+                val token = task.result
+                Log.d("FCM", "Fetched fcm token: $token")
+
+                fcmTokenManager.saveTokenLocally(applicationContext, token)
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        fcmTokenManager.sendTokenToServer(token)
+                    } catch (e: Exception) {
+                        Log.e("FCM", "Failed to send FCM token to server: ${e.message}")
+                    }
+                }
+            }
+    }
+}

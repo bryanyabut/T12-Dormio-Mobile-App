@@ -13,12 +13,14 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
     @Provides
+    @Singleton
     fun provideLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
@@ -26,23 +28,22 @@ object NetworkModule {
     }
 
     @Provides
+    @Singleton
     fun provideAuthInterceptor(
         @ApplicationContext context: Context
     ): Interceptor {
         return Interceptor { chain ->
             val token = TokenManager.getToken(context)
-
             val requestBuilder = chain.request().newBuilder()
-
             if (token != null) {
                 requestBuilder.header("Authorization", "Bearer $token")
             }
-
             chain.proceed(requestBuilder.build())
         }
     }
 
     @Provides
+    @Singleton
     fun provideOkHttpClient(
         loggingInterceptor: HttpLoggingInterceptor,
         authInterceptor: Interceptor
@@ -57,6 +58,7 @@ object NetworkModule {
     }
 
     @Provides
+    @Singleton
     fun provideRetrofit(
         okHttpClient: OkHttpClient
     ): Retrofit {
@@ -68,12 +70,20 @@ object NetworkModule {
     }
 
     @Provides
+    @Singleton
     fun provideAuthApiService(retrofit: Retrofit): AuthApiService {
         return retrofit.create(AuthApiService::class.java)
     }
 
     @Provides
+    @Singleton
     fun provideMaintenanceApiService(retrofit: Retrofit): MaintenanceApiService {
         return retrofit.create(MaintenanceApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFcmTokenManager(authApiService: AuthApiService): FcmTokenManager {
+        return FcmTokenManager(authApiService)
     }
 }
