@@ -1,6 +1,7 @@
 package com.gbc.dormio_mobile_app.ui.auth
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -23,6 +24,13 @@ class LoginTestActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissions(
+                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                1
+            )
+        }
+
         enableEdgeToEdge()
         setContentView(R.layout.activity_login_test)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -43,10 +51,10 @@ class LoginTestActivity : AppCompatActivity() {
         }
 
         viewModel.login(
-//            email = "john.doe@example.com",
-//            password = "pass123"
-            email = "admin@dormio.com",
-            password = "adminpass"
+            email = "john.doe@example.com",
+            password = "pass123"
+//            email = "admin@dormio.com",
+//            password = "adminpass"
         )
     }
 }
