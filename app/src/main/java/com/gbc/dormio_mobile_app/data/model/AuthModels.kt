@@ -39,7 +39,7 @@ data class ErrorResponse(
 )
 
 data class UserDto(
-    val id: String,
+    val id: Int,
     val email: String,
     @SerializedName("firstName") val firstName: String,
     @SerializedName("lastName") val lastName: String,

@@ -12,34 +12,33 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltAndroidApp
-class DormioApp : Application(){
-    @Inject
-    lateinit var fcmTokenManager: FcmTokenManager
+class DormioApp : Application() {
+
+    @Inject lateinit var fcmTokenManager: FcmTokenManager
 
     override fun onCreate() {
         super.onCreate()
-
         FirebaseApp.initializeApp(this)
 
-        FirebaseMessaging.getInstance().token
-            .addOnCompleteListener { task ->
-                if (!task.isSuccessful){
-                    Log.w("FCM", "Fetching FCM registration token failed", task.exception)
-                    return@addOnCompleteListener
-                }
+        //fetch token and save locally and send to server
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w("FCM", "Fetching FCM token failed", task.exception)
+                return@addOnCompleteListener
+            }
 
-                val token = task.result
-                Log.d("FCM", "Fetched fcm token: $token")
+            val token = task.result ?: return@addOnCompleteListener
+            Log.d("FCM", "Fetched FCM token: $token")
 
-                fcmTokenManager.saveTokenLocally(applicationContext, token)
+            fcmTokenManager.saveTokenLocally(applicationContext, token)
 
-                CoroutineScope(Dispatchers.IO).launch {
-                    try {
-                        fcmTokenManager.sendTokenToServer(token)
-                    } catch (e: Exception) {
-                        Log.e("FCM", "Failed to send FCM token to server: ${e.message}")
-                    }
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    fcmTokenManager.resendTokenIfAvailable(applicationContext)
+                } catch (e: Exception) {
+                    Log.e("FCM", "Failed to send FCM token: ${e.message}")
                 }
             }
+        }
     }
 }

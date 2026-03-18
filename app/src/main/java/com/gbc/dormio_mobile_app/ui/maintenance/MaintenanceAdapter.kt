@@ -8,6 +8,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.gbc.dormio_mobile_app.R
 import com.gbc.dormio_mobile_app.data.model.MaintenanceRequestDto
+import com.gbc.dormio_mobile_app.data.model.RequestStatus
+import com.gbc.dormio_mobile_app.data.model.UserDto
 
 
 class MaintenanceAdapter(
@@ -24,6 +26,28 @@ class MaintenanceAdapter(
         items.clear()
         items.addAll(newItems)
         notifyDataSetChanged()
+    }
+
+    fun updateRequestStatus(requestId: String, status: RequestStatus, user: UserDto? = null) {
+        val index = items.indexOfFirst { it.id == requestId }
+        if (index != -1) {
+            val oldItem = items[index]
+            val resolvedUser: UserDto = when {
+                user != null -> user
+                else -> try {
+                    oldItem.user
+                } catch (e: Exception) {
+                    UserDto(id = 0, email = "", firstName = "", lastName = "", role = "STUDENT")
+                }
+            }
+
+            val updatedItem = oldItem.copy(
+                status = status,
+                user = resolvedUser
+            )
+            items[index] = updatedItem
+            notifyItemChanged(index)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MaintenanceViewHolder {
@@ -63,5 +87,6 @@ class MaintenanceAdapter(
             btnDetail.setOnClickListener { onDetail?.invoke(request.id) }
             btnDelete.setOnClickListener { onDelete?.invoke(request) }
         }
+
     }
 }
