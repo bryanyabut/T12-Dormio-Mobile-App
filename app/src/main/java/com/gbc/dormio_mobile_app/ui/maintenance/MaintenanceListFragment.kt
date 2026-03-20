@@ -18,9 +18,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gbc.dormio_mobile_app.R
 import com.gbc.dormio_mobile_app.data.model.MaintenanceQuery
 import com.gbc.dormio_mobile_app.data.model.RequestStatus
+import com.gbc.dormio_mobile_app.fcm.MaintenanceUpdateBus
 import com.gbc.dormio_mobile_app.viewmodel.maintenance.AdminMaintenanceViewModel
 import com.gbc.dormio_mobile_app.viewmodel.maintenance.StudentMaintenanceViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -39,6 +41,8 @@ class MaintenanceListFragment : Fragment(R.layout.fragment_maintenance_list) {
     private lateinit var urgencySpinner: Spinner
 
     private lateinit var createButton: Button
+
+    private var pendingRequestId: String? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -80,11 +84,30 @@ class MaintenanceListFragment : Fragment(R.layout.fragment_maintenance_list) {
 
         setupRecyclerView()
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                // Listen for real-time updates from FCM
+                MaintenanceUpdateBus.updatesFlow.collect { (requestId, status, user) ->
+                    adapter.updateRequestStatus(requestId, status, user)
+                }
+            }
+        }
+
         observeViewModel()
 
         createState()
 
+        // Load initial data
         loadInitialData()
+
+        // Check for pending REQUEST_ID from arguments (from notification tap)
+        val intReqId = arguments?.getInt("REQUEST_ID", -1) ?: -1
+        pendingRequestId = if (intReqId != -1) {
+            intReqId.toString()
+        } else {
+            arguments?.getString("REQUEST_ID")
+        }
+
     }
 
     private fun createState(){
@@ -187,9 +210,9 @@ class MaintenanceListFragment : Fragment(R.layout.fragment_maintenance_list) {
         studentViewModel.requestDetail(requestId)
 
         // Collect detail state
-        viewLifecycleOwner.lifecycleScope.launch {
+        val job = viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
-                studentViewModel.detailReqUiState.collect { state ->
+                studentViewModel.detailReqUiState.collectLatest { state ->
                     state.requestDetail?.let { request ->
                         titleInput.setText(request.title)
                         descInput.setText(request.description)
@@ -204,6 +227,10 @@ class MaintenanceListFragment : Fragment(R.layout.fragment_maintenance_list) {
             .setTitle("Request Details")
             .setView(dialogView)
             .create()
+
+        dialog.setOnDismissListener {
+            job.cancel()
+        }
 
         // Handle update
         btnUpdate.setOnClickListener {
@@ -316,7 +343,7 @@ class MaintenanceListFragment : Fragment(R.layout.fragment_maintenance_list) {
         setupPagination()
     }
 
-    // observe ViewModel state and update UI
+    //observe ViewModel state and update UI
     private fun observeViewModel() {
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -328,13 +355,29 @@ class MaintenanceListFragment : Fragment(R.layout.fragment_maintenance_list) {
                 if (isAdmin) {
 
                     adminViewModel.allReqUiState.collect { state ->
-                        adapter.submitList(state.maintenanceRequests)
+                        // post the adapter update to avoid modifying adapter during layout/scroll
+                        recyclerView.post { adapter.submitList(state.maintenanceRequests) }
+
+                        pendingRequestId?.let { reqId ->
+                            if (state.maintenanceRequests.any { it.id == reqId }) {
+                                openRequestDetailDialog(reqId)
+                                pendingRequestId = null
+                            }
+                        }
                     }
 
                 } else {
 
                     studentViewModel.allReqUiState.collect { state ->
-                        adapter.submitList(state.maintenanceRequests)
+                        // Post the adapter update to avoid modifying adapter during layout/scroll
+                        recyclerView.post { adapter.submitList(state.maintenanceRequests) }
+
+                        pendingRequestId?.let { reqId ->
+                            if (state.maintenanceRequests.any { it.id == reqId }) {
+                                openRequestDetailDialog(reqId)
+                                pendingRequestId = null
+                            }
+                        }
                     }
 
                 }

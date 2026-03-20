@@ -1,14 +1,17 @@
 package com.gbc.dormio_mobile_app.viewmodel.auth
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gbc.dormio_mobile_app.data.model.AuthUiState
+import com.gbc.dormio_mobile_app.network.FcmTokenManager
 import com.gbc.dormio_mobile_app.network.TokenManager
 import com.gbc.dormio_mobile_app.utils.NetworkResult
 import com.gbc.dormio_mobile_app.data.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,7 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val repository: AuthRepository,
-    @param:ApplicationContext private val appContext: Context
+    @param:ApplicationContext private val appContext: Context,
+    private val fcmTokenManager: FcmTokenManager
 ): ViewModel(){
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
@@ -30,13 +34,20 @@ class AuthViewModel @Inject constructor(
             when (val result = repository.login(email, password)) {
                 is NetworkResult.Success -> {
                     val user = result.data.user
-                    val token = result.data.token
+                    val jwt = result.data.token
+                    TokenManager.saveToken(appContext, jwt)
 
-                    TokenManager.saveToken(appContext, token)
+                    //immediately attempt to resend FCM token after login
+                    viewModelScope.launch {
+                        try {
+                            fcmTokenManager.resendTokenIfAvailable(appContext)
+                        } catch (e: Exception) {
+                            Log.e("FCM", "Failed to resend FCM token after login: ${e.message}")
+                        }
+                    }
 
-                    _uiState.value = AuthUiState(user = user, token = token, isLoading = false)
+                    _uiState.value = AuthUiState(user = user, token = jwt, isLoading = false)
                 }
-
                 is NetworkResult.Error -> {
                     _uiState.value = AuthUiState(
                         errorMessage = result.apiError.message ?: "An error occurred",

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "500237094197",
+    "project_id": "dormio-da7c1",
+    "storage_bucket": "dormio-da7c1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:500237094197:android:d7d35306511d804351107c",
+        "android_client_info": {
+          "package_name": "com.gbc.dormio_mobile_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6uBVW4qWpFn2GeOiwPZNHFDgeOuVFA1E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

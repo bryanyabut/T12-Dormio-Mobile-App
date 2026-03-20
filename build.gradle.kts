@@ -5,4 +5,7 @@ plugins {
     // Hilt Gradle plugin
     id("com.google.devtools.ksp") version "2.0.21-1.0.25" apply false
     id("com.google.dagger.hilt.android") version "2.59.2" apply false
+
+    // google-services plugin for Firebase
+    id("com.google.gms.google-services") version "4.4.4" apply false
 }

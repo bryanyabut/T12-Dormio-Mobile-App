@@ -11,6 +11,7 @@ import com.gbc.dormio_mobile_app.utils.Constants
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 
@@ -37,11 +38,9 @@ interface AuthApiService {
         @Body request: RegisterRequest
     ): Response<RegisterResponse>
 
-    @POST("auth/device-token")
+    @POST(Constants.API_USERS_FCM_TOKEN)
     suspend fun updateDeviceToken(
         @Body request: DeviceTokenRequest
     ): Response<DeviceTokenResponse>
-
-
 
 }

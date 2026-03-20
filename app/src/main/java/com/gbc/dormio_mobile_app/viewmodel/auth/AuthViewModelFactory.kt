@@ -9,11 +9,11 @@ class AuthViewModelFactory(
     private val repository: AuthRepository,
     private val appContext: Context
 ) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(AuthViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return AuthViewModel(repository, appContext) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel: ${modelClass.name}")
-    }
+//    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+//        if (modelClass.isAssignableFrom(AuthViewModel::class.java)) {
+//            @Suppress("UNCHECKED_CAST")
+//            return AuthViewModel(repository, appContext) as T
+//        }
+//        throw IllegalArgumentException("Unknown ViewModel: ${modelClass.name}")
+//    }
 }

@@ -10,6 +10,7 @@ object Constants {
     const val API_AUTH_LOGOUT = "auth/logout"
     const val API_AUTH_VERIFY = "auth/verify"
     const val API_AUTH_DEVICE_TOKEN = "auth/device-token"
+    const val API_USERS_FCM_TOKEN = "users/device-token"
 
     // maintenance endpoints
     // STUDENT ENDPOINTS

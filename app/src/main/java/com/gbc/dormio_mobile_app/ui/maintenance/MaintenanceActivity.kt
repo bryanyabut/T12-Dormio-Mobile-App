@@ -21,12 +21,18 @@ class MaintenanceActivity : AppCompatActivity() {
         }
 
         val role = intent.getStringExtra("user_role") ?: "STUDENT"
+        // Read REQUEST_ID from intent: try String first, fall back to Int
+        val requestIdString = intent.getStringExtra("REQUEST_ID")
+        val requestId = requestIdString ?: intent.getIntExtra("REQUEST_ID", -1).takeIf { it != -1 }?.toString()
 
         if (savedInstanceState == null) {
             val fragment = MaintenanceListFragment()
 
-            val bundle = Bundle()
-            bundle.putString("user_role", role)
+            val bundle = Bundle().apply {
+                putString("user_role", role)
+                // Only put REQUEST_ID if it's valid (non-null and non-empty)
+                requestId?.let { putString("REQUEST_ID", it) }
+            }
             fragment.arguments = bundle
 
             supportFragmentManager.beginTransaction()

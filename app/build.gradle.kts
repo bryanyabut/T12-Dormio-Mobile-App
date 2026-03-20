@@ -4,6 +4,9 @@ plugins {
 
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+
+    // google-services plugin for Firebase
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -65,4 +68,9 @@ dependencies {
     // Hilt for dependency injection
     implementation("com.google.dagger:hilt-android:2.59.2")
     ksp("com.google.dagger:hilt-android-compiler:2.59.2")
+
+    // Firebase dependencies
+    implementation(platform("com.google.firebase:firebase-bom:34.10.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-messaging")
 }
