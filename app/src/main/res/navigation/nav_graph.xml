@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <!-- Bottom nav destinations -->
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.home.HomeFragment"
+        android:label="Home" />
+
+    <fragment
+        android:id="@+id/notificationsFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.notifications.NotificationsFragment"
+        android:label="Alerts" />
+
+    <fragment
+        android:id="@+id/accountSettingsFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.account.AccountSettingsFragment"
+        android:label="Profile" />
+
+    <!-- Feature fragments -->
+    <fragment
+        android:id="@+id/maintenanceFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.maintenance.MaintenanceListFragment"
+        android:label="Maintenance" />
+
+    <fragment
+        android:id="@+id/mealsFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.meals.MealsFragment"
+        android:label="Meal Plan" />
+
+    <fragment
+        android:id="@+id/budgetFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.budget.BudgetFragment"
+        android:label="Budget" />
+
+    <fragment
+        android:id="@+id/choresFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.chores.ChoresFragment"
+        android:label="Chores" />
+
+</navigation>
