@@ -19,7 +19,7 @@
             android:layout_width="22dp"
             android:layout_height="22dp"
             android:contentDescription="Home"
-            android:src="@android:drawable/ic_menu_home"
+            android:src="@drawable/ic_house"
             app:tint="@color/primary_blue" />
 
         <TextView
@@ -47,7 +47,7 @@
             android:layout_width="22dp"
             android:layout_height="22dp"
             android:contentDescription="Alerts"
-            android:src="@android:drawable/ic_menu_notifications"
+            android:src="@drawable/ic_notifications"
             app:tint="@color/primary_blue" />
 
         <TextView
@@ -75,7 +75,7 @@
             android:layout_width="22dp"
             android:layout_height="22dp"
             android:contentDescription="Profile"
-            android:src="@android:drawable/ic_menu_invite"
+            android:src="@drawable/outline_account_circle_24"
             app:tint="@color/primary_blue" />
 
         <TextView

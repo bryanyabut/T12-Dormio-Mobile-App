@@ -205,7 +205,7 @@
                     android:layout_width="56dp"
                     android:layout_height="56dp"
                     android:contentDescription="Budget"
-                    android:src="@android:drawable/ic_menu_archive"
+                    android:src="@drawable/outline_attach_money_24"
                     app:tint="@color/feature_green" />
 
                 <TextView
@@ -243,7 +243,7 @@
                     android:layout_width="56dp"
                     android:layout_height="56dp"
                     android:contentDescription="Chores"
-                    android:src="@android:drawable/ic_menu_copy_holo_light"
+                    android:src="@drawable/ic_list"
                     app:tint="@color/feature_orange" />
 
                 <TextView
