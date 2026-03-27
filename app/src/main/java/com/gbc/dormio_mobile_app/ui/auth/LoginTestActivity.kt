@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import com.gbc.dormio_mobile_app.MainActivity
 import com.gbc.dormio_mobile_app.R
 import com.gbc.dormio_mobile_app.ui.maintenance.MaintenanceActivity
 import com.gbc.dormio_mobile_app.viewmodel.auth.AuthViewModel
@@ -43,9 +44,10 @@ class LoginTestActivity : AppCompatActivity() {
             viewModel.uiState.collectLatest { state ->
                 if (state.token != null) {
                     val role = state.user?.role ?: "STUDENT"
-                    val intent = Intent(this@LoginTestActivity, MaintenanceActivity::class.java)
+                    val intent = Intent(this@LoginTestActivity, MainActivity::class.java)
                     intent.putExtra("user_role", role)
                     startActivity(intent)
+                    finish()
                 }
             }
         }

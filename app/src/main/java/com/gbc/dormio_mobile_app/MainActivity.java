@@ -34,7 +34,8 @@ public class MainActivity extends AppCompatActivity {
         Set<Integer> topLevelDestinations = new HashSet<>(Arrays.asList(
                 R.id.homeFragment,
                 R.id.notificationsFragment,
-                R.id.accountSettingsFragment
+                R.id.accountSettingsFragment,
+                R.id.mealsFragment
         ));
 
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {

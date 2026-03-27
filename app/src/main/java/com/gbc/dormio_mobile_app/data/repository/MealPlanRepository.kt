@@ -1,0 +1,33 @@
+package com.gbc.dormio_mobile_app.data.repository
+
+import com.gbc.dormio_mobile_app.data.model.mealplan.DayGroup
+import com.gbc.dormio_mobile_app.data.model.mealplan.MealPlanType
+import com.gbc.dormio_mobile_app.data.model.mealplan.MealWithIngredients
+import com.gbc.dormio_mobile_app.network.ApiService.MealPlanApiService
+import com.gbc.dormio_mobile_app.utils.NetworkResult
+import com.gbc.dormio_mobile_app.utils.handleApiResponse
+import com.gbc.dormio_mobile_app.utils.safeApiCall
+import javax.inject.Inject
+
+class MealPlanRepository @Inject constructor(
+    private val apiService: MealPlanApiService
+) {
+
+    // Get meal plan premiums
+    suspend fun getAllMealPlans(): NetworkResult<List<MealPlanType>>{
+        val networkResult = safeApiCall { apiService.getAllPlans() }
+        return handleApiResponse(networkResult)
+    }
+
+    // Get meal plan details
+    suspend fun getWeeklyPlan(id: Int): NetworkResult<List<DayGroup>>{
+        val networkResult = safeApiCall { apiService.getWeeklyPlan(id) }
+        return handleApiResponse(networkResult)
+    }
+
+    // Get meals by day
+    suspend fun getMealsByDay(id: Int, day: String): NetworkResult<List<MealWithIngredients>>{
+        val networkResult = safeApiCall { apiService.getMealsByDay(id, day) }
+        return handleApiResponse(networkResult)
+    }
+}
