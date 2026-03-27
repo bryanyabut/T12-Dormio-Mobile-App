@@ -49,6 +49,8 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.core.ktx)
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -68,6 +70,10 @@ dependencies {
     // Hilt for dependency injection
     implementation("com.google.dagger:hilt-android:2.59.2")
     ksp("com.google.dagger:hilt-android-compiler:2.59.2")
+
+    //Jetpack Navigation
+    implementation("androidx.navigation:navigation-fragment-ktx:2.8.9")
+    implementation("androidx.navigation:navigation-ui-ktx:2.8.9")
 
     // Firebase dependencies
     implementation(platform("com.google.firebase:firebase-bom:34.10.0"))
