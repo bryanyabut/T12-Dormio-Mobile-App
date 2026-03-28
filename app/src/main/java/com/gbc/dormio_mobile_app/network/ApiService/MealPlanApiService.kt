@@ -18,13 +18,13 @@ interface MealPlanApiService {
     // Get meal plan details endpoints
     @GET(Constants.API_MEAL_PLAN_DETAIL_WEEK)
     suspend fun getWeeklyPlan(
-        @Path("mealPlanId") Id: Int
+        @Path("mealPlanId") id: Int
     ): Response<ApiResponse<List<DayGroup>>>
 
     // Get meals by day endpoints
     @GET(Constants.API_MEAL_PLAN_DAY)
     suspend fun getMealsByDay(
-        @Path("id") Id: Int,
+        @Path("mealPlanTypeId") id: Int,
         @Path("dayOfWeek") day: String
     ): Response<ApiResponse<List<MealWithIngredients>>>
 }

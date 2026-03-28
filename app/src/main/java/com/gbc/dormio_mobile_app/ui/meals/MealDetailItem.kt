@@ -4,5 +4,5 @@ import com.gbc.dormio_mobile_app.data.model.mealplan.MealSummary
 
 sealed class MealDetailItem {
     data class Header(val dayName: String) : MealDetailItem()
-    data class Meal(val summary: MealSummary) : MealDetailItem()
+    data class Meal(val summary: MealSummary, val dayName: String) : MealDetailItem()
 }

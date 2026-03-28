@@ -13,6 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gbc.dormio_mobile_app.R
@@ -29,15 +30,26 @@ class WeeklyDetailFragment : Fragment(R.layout.fragment_weekly_detail) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val mealPlanId = arguments?.getInt("mealPlanTypeId") ?: 1
+
         val recyclerView = view.findViewById<RecyclerView>(R.id.weeklyRecyclerView)
         val progressBar = view.findViewById<ProgressBar>(R.id.progressBarWeekly)
         val titleText = view.findViewById<TextView>(R.id.titleTextWeekly)
 
-        weeklyAdapter = WeeklyDetailAdapter()
-        recyclerView.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = weeklyAdapter
+        weeklyAdapter = WeeklyDetailAdapter { dayString ->
+            val bundle = Bundle().apply {
+                putInt("mealPlanTypeId", mealPlanId)
+                putString("dayOfWeek", dayString)
+            }
+
+            findNavController().navigate(
+                R.id.action_weeklyDetailFragment_to_dayMealFragment,
+                bundle
+            )
         }
+
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.adapter = weeklyAdapter
 
         //state flow
         viewLifecycleOwner.lifecycleScope.launch{
@@ -49,7 +61,7 @@ class WeeklyDetailFragment : Fragment(R.layout.fragment_weekly_detail) {
                     if (state.weeklyPlan.isNotEmpty()){
                         val displayList = state.weeklyPlan.flatMap { group ->
                             listOf(MealDetailItem.Header(group.day.name)) +
-                                    group.meals.map { MealDetailItem.Meal(it) }
+                                    group.meals.map { MealDetailItem.Meal(it, group.day.name) }
                         }
                         weeklyAdapter.submitList(displayList)
                     }
@@ -61,8 +73,6 @@ class WeeklyDetailFragment : Fragment(R.layout.fragment_weekly_detail) {
                 }
             }
         }
-
-        val mealPlanId = arguments?.getInt("mealPlanTypeId") ?: 1
 
         titleText.text = when(mealPlanId){
             1 -> "Basic Plan"

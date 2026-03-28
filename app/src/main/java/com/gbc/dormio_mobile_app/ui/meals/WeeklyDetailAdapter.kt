@@ -10,7 +10,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gbc.dormio_mobile_app.R
 import com.gbc.dormio_mobile_app.data.model.mealplan.MealSummary
 
-class WeeklyDetailAdapter : ListAdapter<MealDetailItem, RecyclerView.ViewHolder>(DiffCallback) {
+class WeeklyDetailAdapter(
+    private val onMealClick: (String) -> Unit
+) : ListAdapter<MealDetailItem, RecyclerView.ViewHolder>(DiffCallback) {
 
     companion object {
         private const val TYPE_HEADER = 0
@@ -31,9 +33,24 @@ class WeeklyDetailAdapter : ListAdapter<MealDetailItem, RecyclerView.ViewHolder>
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (val item = getItem(position)) {
-            is MealDetailItem.Header -> (holder as HeaderViewHolder).bind(item.dayName)
-            is MealDetailItem.Meal -> (holder as MealViewHolder).bind(item.summary)
+        val item = getItem(position)
+        when (holder) {
+            is HeaderViewHolder -> {
+                val headerItem = item as MealDetailItem.Header
+                holder.bind(headerItem.dayName)
+
+                holder.itemView.setOnClickListener {
+                    onMealClick(headerItem.dayName)
+                }
+            }
+            is MealViewHolder -> {
+                val mealItem = item as MealDetailItem.Meal
+                holder.bind(mealItem.summary)
+
+                holder.itemView.setOnClickListener {
+                    onMealClick(mealItem.dayName)
+                }
+            }
         }
     }
 
@@ -49,7 +66,7 @@ class WeeklyDetailAdapter : ListAdapter<MealDetailItem, RecyclerView.ViewHolder>
         private val descTxt: TextView = view.findViewById(R.id.mealDescription)
 
         fun bind(summary: MealSummary) {
-            // Displays: "BREAKFAST: Pancakes"
+            //display meal type and name with description below
             nameTxt.text = "${summary.mealType}: ${summary.name}"
             descTxt.text = summary.description ?: "No description provided."
         }

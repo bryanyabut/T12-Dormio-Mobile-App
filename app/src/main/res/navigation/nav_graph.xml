@@ -39,7 +39,18 @@
     <fragment
         android:id="@+id/weeklyDetailFragment"
         android:name="com.gbc.dormio_mobile_app.ui.meals.WeeklyDetailFragment"
-        android:label="Weekly Menu" />
+        android:label="Weekly Menu" >
+
+        <action
+            android:id="@+id/action_weeklyDetailFragment_to_dayMealFragment"
+            app:destination="@id/dayMealFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/dayMealFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.meals.DayMealFragment"
+        android:label="Day Meals" />
 
     <fragment
         android:id="@+id/budgetFragment"

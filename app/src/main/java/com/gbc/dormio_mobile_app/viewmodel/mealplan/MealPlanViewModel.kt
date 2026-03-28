@@ -95,4 +95,35 @@ class MealPlanViewModel @Inject constructor(
             }
         }
     }
+
+    fun fetchDayMeals(planId: Int, day: String) {
+        _uiState.update {
+            it.copy(
+                isLoading = true,
+                errorMessage = null,
+                dailyIngredients = emptyList()
+            )
+        }
+
+        viewModelScope.launch {
+            when (val result = repository.getMealsByDay(planId, day)) {
+                is NetworkResult.Success -> {
+                    _uiState.update { it.copy(
+                        isLoading = false,
+                        dailyIngredients = result.data
+                    )}
+                }
+                is NetworkResult.Error -> {
+                    _uiState.update { it.copy(
+                        isLoading = false,
+                        errorMessage = result.apiError.message ?: "Could not load meals for $day"
+                    )}
+                }
+                is NetworkResult.Loading -> {
+                    _uiState.update { it.copy(
+                        isLoading = true) }
+                }
+            }
+        }
+    }
 }
