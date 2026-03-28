@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gbc.dormio_mobile_app.R
@@ -32,7 +33,10 @@ class MealsFragment : Fragment(R.layout.fragment_meals){
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         mealPlanAdapter = MealPlanAdapter(emptyList()){ selectedPlan ->
-            Toast.makeText(context, "Selected: ${selectedPlan.name}", Toast.LENGTH_SHORT).show()
+            val bundle = Bundle().apply {
+                putInt("mealPlanTypeId", selectedPlan.id)
+            }
+            findNavController().navigate(R.id.action_mealsFragment_to_weeklyDetailFragment, bundle)
         }
 
         recyclerView.apply{

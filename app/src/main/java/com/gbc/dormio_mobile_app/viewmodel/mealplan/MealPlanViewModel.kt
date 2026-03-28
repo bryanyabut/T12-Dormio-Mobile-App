@@ -65,6 +65,7 @@ class MealPlanViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 isLoading = true,
+                weeklyPlan = emptyList(),
                 errorMessage = null
             )
         }

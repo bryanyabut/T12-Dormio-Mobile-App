@@ -29,7 +29,17 @@
     <fragment
         android:id="@+id/mealsFragment"
         android:name="com.gbc.dormio_mobile_app.ui.meals.MealsFragment"
-        android:label="Meal Plan" />
+        android:label="Meal Plan" >
+        <!-- Action navigating to weekly details -->
+        <action
+            android:id="@+id/action_mealsFragment_to_weeklyDetailFragment"
+            app:destination="@id/weeklyDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/weeklyDetailFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.meals.WeeklyDetailFragment"
+        android:label="Weekly Menu" />
 
     <fragment
         android:id="@+id/budgetFragment"
