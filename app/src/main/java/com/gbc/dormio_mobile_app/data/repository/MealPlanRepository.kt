@@ -3,6 +3,8 @@ package com.gbc.dormio_mobile_app.data.repository
 import com.gbc.dormio_mobile_app.data.model.mealplan.DayGroup
 import com.gbc.dormio_mobile_app.data.model.mealplan.MealPlanType
 import com.gbc.dormio_mobile_app.data.model.mealplan.MealWithIngredients
+import com.gbc.dormio_mobile_app.data.model.mealplan.SubscribeRequest
+import com.gbc.dormio_mobile_app.data.model.mealplan.UserMealPlan
 import com.gbc.dormio_mobile_app.network.ApiService.MealPlanApiService
 import com.gbc.dormio_mobile_app.utils.NetworkResult
 import com.gbc.dormio_mobile_app.utils.handleApiResponse
@@ -28,6 +30,14 @@ class MealPlanRepository @Inject constructor(
     // Get meals by day
     suspend fun getMealsByDay(id: Int, day: String): NetworkResult<List<MealWithIngredients>>{
         val networkResult = safeApiCall { apiService.getMealsByDay(id, day) }
+        return handleApiResponse(networkResult)
+    }
+
+    //POST subscribe to meal plan
+    suspend fun subscribeToMealPlan(mealPlanTypeId: Int): NetworkResult<UserMealPlan>{
+        val networkResult = safeApiCall {
+            apiService.subscribeToMealPlan(SubscribeRequest(mealPlanTypeId))
+        }
         return handleApiResponse(networkResult)
     }
 }

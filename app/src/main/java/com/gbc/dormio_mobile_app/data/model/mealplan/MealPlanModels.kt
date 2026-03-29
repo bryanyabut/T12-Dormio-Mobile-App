@@ -44,12 +44,27 @@ data class MealWithIngredients(
     val ingredients: List<Ingredient>
 )
 
+//subscribe to meal plan request
+data class SubscribeRequest(
+    val mealPlanTypeId: Int
+)
+
+data class UserMealPlan(
+    val id: Int,
+    @SerializedName("user_id") val userId: Int,
+    @SerializedName("meal_plan_type_id") val mealPlanTypeId: Int,
+    @SerializedName("start_date") val startDate: String,
+    @SerializedName("end_date") val endDate: String
+)
+
 data class MealPlanUiState(
     val isLoading: Boolean = false,
+    val isSubscribing: Boolean = false,
     val mealPlans: List<MealPlanType> = emptyList(),
     val weeklyPlan: List<DayGroup> = emptyList(),
     val dailyIngredients: List<MealWithIngredients> = emptyList(),
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val subscriptionSuccessMessage: String? = null
 )
 
 enum class Weekday{

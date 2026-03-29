@@ -18,6 +18,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gbc.dormio_mobile_app.R
 import com.gbc.dormio_mobile_app.viewmodel.mealplan.MealPlanViewModel
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -35,6 +37,7 @@ class WeeklyDetailFragment : Fragment(R.layout.fragment_weekly_detail) {
         val recyclerView = view.findViewById<RecyclerView>(R.id.weeklyRecyclerView)
         val progressBar = view.findViewById<ProgressBar>(R.id.progressBarWeekly)
         val titleText = view.findViewById<TextView>(R.id.titleTextWeekly)
+        val subscribeButton = view.findViewById<MaterialButton>(R.id.btnSubscribe)
 
         weeklyAdapter = WeeklyDetailAdapter { dayString ->
             val bundle = Bundle().apply {
@@ -51,12 +54,35 @@ class WeeklyDetailFragment : Fragment(R.layout.fragment_weekly_detail) {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = weeklyAdapter
 
+        subscribeButton.setOnClickListener {
+            val planName = titleText.text.toString()
+
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Confirm Subscription")
+                .setMessage("Would you like to subscribe to the $planName?")
+                .setNegativeButton("Cancel") {
+                    dialog, _ -> dialog.dismiss() }
+                .setPositiveButton("Subscribe") { _, _ ->
+                    viewModel.subscribeToMealPlan(mealPlanId, planName)
+                }
+                .show()
+        }
+
         //state flow
         viewLifecycleOwner.lifecycleScope.launch{
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
                 viewModel.uiState.collect { state ->
 
                     progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
+
+                    subscribeButton.isEnabled = !state.isSubscribing
+                    if (state.isSubscribing){
+                        subscribeButton.text = "Subscribing..."
+                        subscribeButton.alpha = 0.6f
+                    } else {
+                        subscribeButton.text = "Subscribe to this plan"
+                        subscribeButton.alpha = 1.0f
+                    }
 
                     if (state.weeklyPlan.isNotEmpty()){
                         val displayList = state.weeklyPlan.flatMap { group ->
@@ -66,9 +92,17 @@ class WeeklyDetailFragment : Fragment(R.layout.fragment_weekly_detail) {
                         weeklyAdapter.submitList(displayList)
                     }
 
+                    state.subscriptionSuccessMessage?.let { successMsg ->
+                        Log.d("WeeklyDetailFragment", "Subscription successful: $successMsg")
+                        Toast.makeText(requireContext(), successMsg, Toast.LENGTH_LONG).show()
+                        viewModel.resetSubscriptionStatus()
+                        findNavController().popBackStack()
+                    }
+
                     state.errorMessage?.let { errorMsg ->
                         Log.d("WeeklyDetailFragment", "Error fetching weekly plan: $errorMsg")
-                        Toast.makeText(context, "Error: $errorMsg", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), "Error: $errorMsg", Toast.LENGTH_LONG).show()
+                        viewModel.resetSubscriptionStatus()
                     }
                 }
             }

@@ -96,6 +96,7 @@ class MealPlanViewModel @Inject constructor(
         }
     }
 
+    //function to fetch ingredients for meals by day
     fun fetchDayMeals(planId: Int, day: String) {
         _uiState.update {
             it.copy(
@@ -126,4 +127,54 @@ class MealPlanViewModel @Inject constructor(
             }
         }
     }
+
+    //function to subscribe to meal plan
+    fun subscribeToMealPlan(mealPlanTypeId: Int, planName: String){
+        _uiState.update{
+            it.copy(
+                isSubscribing = true,
+                errorMessage = null,
+                subscriptionSuccessMessage = null
+            ) }
+
+        viewModelScope.launch {
+            when (val result = repository.subscribeToMealPlan(mealPlanTypeId)) {
+                is NetworkResult.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isSubscribing = false,
+                            subscriptionSuccessMessage = "Successfully subscribed to $planName meal plan!"
+                        )
+                    }
+                }
+
+                is NetworkResult.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isSubscribing = false,
+                            errorMessage = result.apiError.message ?: "Subscription failed. Please try again."
+                        )
+                    }
+                }
+
+                is NetworkResult.Loading -> {
+                    _uiState.update {
+                        it.copy(
+                            isSubscribing = true
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun resetSubscriptionStatus(){
+        _uiState.update {
+            it.copy(
+                subscriptionSuccessMessage = null,
+                errorMessage = null
+            )
+        }
+    }
+
 }
