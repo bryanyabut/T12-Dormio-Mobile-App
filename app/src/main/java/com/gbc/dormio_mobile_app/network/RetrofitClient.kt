@@ -1,6 +1,7 @@
 package com.gbc.dormio_mobile_app.network
 
 import android.content.Context
+import com.gbc.dormio_mobile_app.network.ApiService.MealPlanApiService
 import com.gbc.dormio_mobile_app.utils.Constants
 import dagger.Module
 import dagger.Provides
@@ -85,5 +86,11 @@ object NetworkModule {
     @Singleton
     fun provideFcmTokenManager(authApiService: AuthApiService): FcmTokenManager {
         return FcmTokenManager(authApiService)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMealPlanApiService(retrofit: Retrofit): MealPlanApiService {
+        return retrofit.create(MealPlanApiService::class.java)
     }
 }

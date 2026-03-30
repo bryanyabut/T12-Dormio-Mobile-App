@@ -7,13 +7,21 @@ object TokenManager {
 
     private const val PREFS_NAME = "dormio_prefs"
     private const val KEY_JWT_TOKEN = "jwt_token"
+    private const val KEY_USER_ROLE = "user_role"
 
     private fun getPrefs(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
-    fun saveToken(context: Context, token: String) {
-        getPrefs(context).edit().putString(KEY_JWT_TOKEN, token).apply()
+    fun saveToken(context: Context, token: String, role: String) {
+        getPrefs(context).edit()
+            .putString(KEY_JWT_TOKEN, token)
+            .putString(KEY_USER_ROLE, role)
+            .apply()
+    }
+
+    fun getUserRole(context: Context): String {
+        return getPrefs(context).getString(KEY_USER_ROLE, "STUDENT") ?: "STUDENT"
     }
 
     fun getToken(context: Context): String? {
@@ -21,6 +29,9 @@ object TokenManager {
     }
 
     fun clearToken(context: Context) {
-        getPrefs(context).edit().remove(KEY_JWT_TOKEN).apply()
+        getPrefs(context).edit()
+            .remove(KEY_JWT_TOKEN)
+            .remove(KEY_USER_ROLE)
+            .apply()
     }
 }

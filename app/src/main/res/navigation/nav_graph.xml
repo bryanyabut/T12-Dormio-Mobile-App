@@ -29,7 +29,42 @@
     <fragment
         android:id="@+id/mealsFragment"
         android:name="com.gbc.dormio_mobile_app.ui.meals.MealsFragment"
-        android:label="Meal Plan" />
+        android:label="Meal Plan" >
+        <!-- Action navigating to weekly details -->
+        <action
+            android:id="@+id/action_mealsFragment_to_weeklyDetailFragment"
+            app:destination="@id/weeklyDetailFragment" />
+
+        <action
+            android:id="@+id/action_mealsFragment_to_mealPlanAdminFragment"
+            app:destination="@id/mealPlanAdminFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/mealPlanAdminFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.meals.MealPlanAdminFragment"
+        android:label="Admin: Edit Meal Plan">
+        <argument
+            android:name="mealPlanTypeId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/weeklyDetailFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.meals.WeeklyDetailFragment"
+        android:label="Weekly Menu" >
+
+        <action
+            android:id="@+id/action_weeklyDetailFragment_to_dayMealFragment"
+            app:destination="@id/dayMealFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/dayMealFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.meals.DayMealFragment"
+        android:label="Day Meals" />
 
     <fragment
         android:id="@+id/budgetFragment"
