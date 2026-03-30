@@ -33,6 +33,9 @@ object Constants {
     const val API_MEAL_PLAN_DETAIL_WEEK = "meal-plans/{mealPlanId}"
     const val API_MEAL_PLAN_DAY = "meal-plans/{mealPlanTypeId}/day/{dayOfWeek}"
     const val API_MEAL_PLAN_SUBSCRIBE = "meal-plans/subscribe"
+    const val API_MEAL_PLAN_USER_DETAIL = "meal-plans/my-plan"
+    const val API_MEAL_PLAN_UPSERT = "meal-plans/templates"
+    const val API_MEAL_PLAN_MEAL_ITEMS = "meal-plans/meal-items"
 
 
 }

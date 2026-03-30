@@ -66,8 +66,8 @@ class WeeklyDetailAdapter(
         private val descTxt: TextView = view.findViewById(R.id.mealDescription)
 
         fun bind(summary: MealSummary) {
-            //display meal type and name with description below
-            nameTxt.text = "${summary.mealType}: ${summary.name}"
+            val mealName = if (!summary.name.isNullOrBlank()) summary.name else "TBD"
+            nameTxt.text = "${summary.mealType}: $mealName"
             descTxt.text = summary.description ?: "No description provided."
         }
     }

@@ -35,7 +35,8 @@ class AuthViewModel @Inject constructor(
                 is NetworkResult.Success -> {
                     val user = result.data.user
                     val jwt = result.data.token
-                    TokenManager.saveToken(appContext, jwt)
+                    val role = user.role ?: "STUDENT"
+                    TokenManager.saveToken(appContext, jwt, role)
 
                     //immediately attempt to resend FCM token after login
                     viewModelScope.launch {

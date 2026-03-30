@@ -34,6 +34,20 @@
         <action
             android:id="@+id/action_mealsFragment_to_weeklyDetailFragment"
             app:destination="@id/weeklyDetailFragment" />
+
+        <action
+            android:id="@+id/action_mealsFragment_to_mealPlanAdminFragment"
+            app:destination="@id/mealPlanAdminFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/mealPlanAdminFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.meals.MealPlanAdminFragment"
+        android:label="Admin: Edit Meal Plan">
+        <argument
+            android:name="mealPlanTypeId"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
 
     <fragment

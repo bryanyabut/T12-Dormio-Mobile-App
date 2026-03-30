@@ -1,6 +1,8 @@
 package com.gbc.dormio_mobile_app.network.ApiService
 
+import com.gbc.dormio_mobile_app.data.model.mealplan.AdminTemplateRequest
 import com.gbc.dormio_mobile_app.data.model.mealplan.DayGroup
+import com.gbc.dormio_mobile_app.data.model.mealplan.MealItem
 import com.gbc.dormio_mobile_app.data.model.mealplan.MealPlanType
 import com.gbc.dormio_mobile_app.data.model.mealplan.MealWithIngredients
 import com.gbc.dormio_mobile_app.data.model.mealplan.SubscribeRequest
@@ -32,9 +34,24 @@ interface MealPlanApiService {
         @Path("dayOfWeek") day: String
     ): Response<ApiResponse<List<MealWithIngredients>>>
 
+    @GET(Constants.API_MEAL_PLAN_MEAL_ITEMS)
+    suspend fun getAllMealItems(): Response<ApiResponse<List<MealItem>>>
+
     //POST subscribe to meal plan
     @POST(Constants.API_MEAL_PLAN_SUBSCRIBE)
     suspend fun subscribeToMealPlan(
         @Body request: SubscribeRequest
     ): Response<ApiResponse<UserMealPlan>>
+
+    //GET user meal plan details
+    @GET(Constants.API_MEAL_PLAN_USER_DETAIL)
+    suspend fun getActiveMealPlan(): Response<ApiResponse<UserMealPlan>>
+
+    //POST ADMIN update/create meal plan
+    @POST(Constants.API_MEAL_PLAN_UPSERT)
+    suspend fun upsertMealTemplate(
+        @Body request: AdminTemplateRequest
+    ): Response<ApiResponse<Any>>
+
+
 }

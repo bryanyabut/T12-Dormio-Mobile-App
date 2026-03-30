@@ -1,6 +1,8 @@
 package com.gbc.dormio_mobile_app.data.repository
 
+import com.gbc.dormio_mobile_app.data.model.mealplan.AdminTemplateRequest
 import com.gbc.dormio_mobile_app.data.model.mealplan.DayGroup
+import com.gbc.dormio_mobile_app.data.model.mealplan.MealItem
 import com.gbc.dormio_mobile_app.data.model.mealplan.MealPlanType
 import com.gbc.dormio_mobile_app.data.model.mealplan.MealWithIngredients
 import com.gbc.dormio_mobile_app.data.model.mealplan.SubscribeRequest
@@ -33,11 +35,29 @@ class MealPlanRepository @Inject constructor(
         return handleApiResponse(networkResult)
     }
 
+    // Get all meal items
+    suspend fun getAllMealItems(): NetworkResult<List<MealItem>>{
+        val networkResult = safeApiCall { apiService.getAllMealItems() }
+        return handleApiResponse(networkResult)
+    }
+
     //POST subscribe to meal plan
     suspend fun subscribeToMealPlan(mealPlanTypeId: Int): NetworkResult<UserMealPlan>{
         val networkResult = safeApiCall {
             apiService.subscribeToMealPlan(SubscribeRequest(mealPlanTypeId))
         }
+        return handleApiResponse(networkResult)
+    }
+
+    //GET user meal plan details
+    suspend fun getActiveMealPlan(): NetworkResult<UserMealPlan>{
+        val networkResult = safeApiCall { apiService.getActiveMealPlan() }
+        return handleApiResponse(networkResult)
+    }
+
+    //POST ADMIN update/create meal plan
+    suspend fun upsertMealTemplate(request: AdminTemplateRequest): NetworkResult<Any> {
+        val networkResult = safeApiCall { apiService.upsertMealTemplate(request) }
         return handleApiResponse(networkResult)
     }
 }

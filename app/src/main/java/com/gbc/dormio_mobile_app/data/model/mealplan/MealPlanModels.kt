@@ -12,14 +12,15 @@ data class MealPlanType(
 
 data class MealItem(
     val id: Int,
-    val name: String,
+    @SerializedName("name") val name: String,
     val description: String?
 )
 
 data class Ingredient(
     val id: Int,
     val name: String,
-    val description: String?
+    val description: String?,
+    val dietaryRestriction: String
 )
 
 //get meal plan details
@@ -31,7 +32,7 @@ data class DayGroup(
 data class MealSummary(
     val mealType: MealType,
     val id: Int,
-    val name: String,
+    @SerializedName("name") val name: String,
     val description: String?
 )
 
@@ -39,7 +40,7 @@ data class MealSummary(
 data class MealWithIngredients(
     val mealType: MealType,
     val id: Int,
-    val name: String,
+    @SerializedName("name") val name: String,
     val description: String?,
     val ingredients: List<Ingredient>
 )
@@ -51,10 +52,18 @@ data class SubscribeRequest(
 
 data class UserMealPlan(
     val id: Int,
-    @SerializedName("user_id") val userId: Int,
-    @SerializedName("meal_plan_type_id") val mealPlanTypeId: Int,
+    val userId: Int,
+    val mealPlanTypeId: Int?,
     @SerializedName("start_date") val startDate: String,
-    @SerializedName("end_date") val endDate: String
+    @SerializedName("end_date") val endDate: String,
+    val mealPlanType: MealPlanType? = null
+)
+
+data class AdminTemplateRequest(
+    val mealPlanTypeId: Int,
+    val dayOfWeek: Weekday,
+    val mealType: MealType,
+    val mealItemId: Int
 )
 
 data class MealPlanUiState(
@@ -63,8 +72,11 @@ data class MealPlanUiState(
     val mealPlans: List<MealPlanType> = emptyList(),
     val weeklyPlan: List<DayGroup> = emptyList(),
     val dailyIngredients: List<MealWithIngredients> = emptyList(),
+    val availableMeals: List<MealItem> = emptyList(),
+    val userRole: String = "STUDENT",
     val errorMessage: String? = null,
-    val subscriptionSuccessMessage: String? = null
+    val subscriptionSuccessMessage: String? = null,
+    val userActivePlan: UserMealPlan? = null
 )
 
 enum class Weekday{

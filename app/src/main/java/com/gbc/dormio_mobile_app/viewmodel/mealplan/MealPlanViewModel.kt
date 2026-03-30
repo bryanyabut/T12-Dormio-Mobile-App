@@ -1,11 +1,15 @@
 package com.gbc.dormio_mobile_app.viewmodel.mealplan
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gbc.dormio_mobile_app.data.model.mealplan.AdminTemplateRequest
 import com.gbc.dormio_mobile_app.data.model.mealplan.MealPlanUiState
 import com.gbc.dormio_mobile_app.data.repository.MealPlanRepository
+import com.gbc.dormio_mobile_app.network.TokenManager
 import com.gbc.dormio_mobile_app.utils.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,18 +19,23 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MealPlanViewModel @Inject constructor(
-    private val repository: MealPlanRepository
+    private val repository: MealPlanRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MealPlanUiState())
     val uiState: StateFlow<MealPlanUiState> = _uiState.asStateFlow()
 
     init {
+        val role = TokenManager.getUserRole(context)
+        _uiState.update { it.copy(userRole = role) }
         fetchMealPlans()
+        fetchUserActivePlan()
     }
 
     //functions to fetch meal plan
     fun fetchMealPlans(){
+        if (uiState.value.mealPlans.isNotEmpty()) return
         _uiState.update {
             it.copy(
                 isLoading = true,
@@ -71,6 +80,7 @@ class MealPlanViewModel @Inject constructor(
         }
 
         viewModelScope.launch{
+            launch { fetchUserActivePlan() }
             when (val result = repository.getWeeklyPlan(id)) {
                 is NetworkResult.Success -> {
                     _uiState.update {
@@ -128,6 +138,26 @@ class MealPlanViewModel @Inject constructor(
         }
     }
 
+    // fetch active user subscription to meal plan
+    fun fetchUserActivePlan() {
+        viewModelScope.launch {
+            when (val result = repository.getActiveMealPlan()) {
+                is NetworkResult.Success -> {
+                    _uiState.update { it.copy(userActivePlan = result.data) }
+                }
+                is NetworkResult.Error -> {
+                    _uiState.update { it.copy(userActivePlan = null) }
+                }
+                else -> {}
+            }
+        }
+    }
+
+    fun setUserRole(role: String) {
+        _uiState.update { it.copy(userRole = role) }
+        fetchUserActivePlan()
+    }
+
     //function to subscribe to meal plan
     fun subscribeToMealPlan(mealPlanTypeId: Int, planName: String){
         _uiState.update{
@@ -146,6 +176,7 @@ class MealPlanViewModel @Inject constructor(
                             subscriptionSuccessMessage = "Successfully subscribed to $planName meal plan!"
                         )
                     }
+                    fetchUserActivePlan()
                 }
 
                 is NetworkResult.Error -> {
@@ -176,5 +207,69 @@ class MealPlanViewModel @Inject constructor(
             )
         }
     }
+
+    fun fetchAdminMealItems() {
+        _uiState.update {
+            it.copy(
+                isLoading = true,
+                errorMessage = null
+            )
+        }
+
+        viewModelScope.launch {
+            when (val result = repository.getAllMealItems()) {
+                is NetworkResult.Success -> {
+                    _uiState.update { it.copy(
+                        isLoading = false,
+                        availableMeals = result.data
+                    ) }
+                }
+                is NetworkResult.Error -> {
+                    _uiState.update { it.copy(
+                        isLoading = false,
+                        errorMessage = result.apiError.message
+                    ) }
+                }
+                is NetworkResult.Loading -> {
+                    _uiState.update { it.copy(isLoading = true) }
+                }
+            }
+        }
+    }
+
+    //upsert meal template for admin
+    fun updateMealTemplate(request: AdminTemplateRequest) {
+        _uiState.update {
+            it.copy(
+                isLoading = true,
+                errorMessage = null
+            ) }
+
+        viewModelScope.launch {
+            when (val result = repository.upsertMealTemplate(request)) {
+                is NetworkResult.Success -> {
+                    _uiState.update { it.copy(
+                        isLoading = false,
+                        subscriptionSuccessMessage = "Meal plan updated successfully!"
+                    ) }
+
+                    fetchWeeklyPlan(request.mealPlanTypeId)
+                }
+                is NetworkResult.Error -> {
+                    _uiState.update { it.copy(
+                        isLoading = false,
+                        errorMessage = result.apiError.message
+                    ) }
+                }
+                is NetworkResult.Loading -> {
+                    _uiState.update { it.copy(
+                        isLoading = true
+                    ) }
+                }
+            }
+        }
+    }
+
+
 
 }

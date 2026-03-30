@@ -75,13 +75,25 @@ class WeeklyDetailFragment : Fragment(R.layout.fragment_weekly_detail) {
 
                     progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
 
+                    val isActivePlan = state.userActivePlan?.mealPlanTypeId == mealPlanId
+
                     subscribeButton.isEnabled = !state.isSubscribing
-                    if (state.isSubscribing){
+
+                    if (isActivePlan) {
+                        subscribeButton.text = "Currently Subscribed"
+                        subscribeButton.alpha = 0.5f
+                        subscribeButton.setIconResource(android.R.drawable.checkbox_on_background)
+                    }
+                    else if (state.isSubscribing){
                         subscribeButton.text = "Subscribing..."
+                        subscribeButton.isEnabled = false
                         subscribeButton.alpha = 0.6f
+                        subscribeButton.setIconResource(0)
                     } else {
                         subscribeButton.text = "Subscribe to this plan"
+                        subscribeButton.isEnabled = true
                         subscribeButton.alpha = 1.0f
+                        subscribeButton.setIconResource(0)
                     }
 
                     if (state.weeklyPlan.isNotEmpty()){
