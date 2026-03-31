@@ -7,8 +7,8 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.gbc.dormio_mobile_app.R
-import com.gbc.dormio_mobile_app.data.model.MaintenanceRequestDto
-import com.gbc.dormio_mobile_app.data.model.RequestStatus
+import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceRequestDto
+import com.gbc.dormio_mobile_app.data.model.maintenance.RequestStatus
 import com.gbc.dormio_mobile_app.data.model.UserDto
 
 

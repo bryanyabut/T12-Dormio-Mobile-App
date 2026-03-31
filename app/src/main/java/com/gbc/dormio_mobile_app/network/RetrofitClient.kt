@@ -1,7 +1,9 @@
 package com.gbc.dormio_mobile_app.network
 
 import android.content.Context
-import com.gbc.dormio_mobile_app.network.ApiService.MealPlanApiService
+import com.gbc.dormio_mobile_app.network.ApiServices.AuthApiService
+import com.gbc.dormio_mobile_app.network.ApiServices.MaintenanceApiService
+import com.gbc.dormio_mobile_app.network.ApiServices.MealPlanApiService
 import com.gbc.dormio_mobile_app.utils.Constants
 import dagger.Module
 import dagger.Provides

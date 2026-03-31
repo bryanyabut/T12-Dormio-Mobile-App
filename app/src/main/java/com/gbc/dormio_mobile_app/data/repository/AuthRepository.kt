@@ -4,7 +4,7 @@ import com.gbc.dormio_mobile_app.data.model.LoginRequest
 import com.gbc.dormio_mobile_app.data.model.LoginResponse
 import com.gbc.dormio_mobile_app.data.model.RegisterRequest
 import com.gbc.dormio_mobile_app.data.model.RegisterResponse
-import com.gbc.dormio_mobile_app.network.AuthApiService
+import com.gbc.dormio_mobile_app.network.ApiServices.AuthApiService
 import com.gbc.dormio_mobile_app.utils.NetworkResult
 import com.gbc.dormio_mobile_app.utils.safeApiCall
 import javax.inject.Inject

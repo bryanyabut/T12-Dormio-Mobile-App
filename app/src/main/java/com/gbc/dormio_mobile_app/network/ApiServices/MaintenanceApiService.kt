@@ -1,13 +1,20 @@
-package com.gbc.dormio_mobile_app.network
+package com.gbc.dormio_mobile_app.network.ApiServices
 
-import com.gbc.dormio_mobile_app.data.model.CreateMaintenanceRequestDto
-import com.gbc.dormio_mobile_app.data.model.MaintenanceListResponse
-import com.gbc.dormio_mobile_app.data.model.MaintenanceResponse
-import com.gbc.dormio_mobile_app.data.model.UpdateMaintenanceRequestDto
-import com.gbc.dormio_mobile_app.data.model.UpdateMaintenanceStatusDto
-import retrofit2.Response
+import com.gbc.dormio_mobile_app.data.model.maintenance.CreateMaintenanceRequestDto
+import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceListResponse
+import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceResponse
+import com.gbc.dormio_mobile_app.data.model.maintenance.UpdateMaintenanceRequestDto
+import com.gbc.dormio_mobile_app.data.model.maintenance.UpdateMaintenanceStatusDto
 import com.gbc.dormio_mobile_app.utils.Constants
-import retrofit2.http.*
+import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.PATCH
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface MaintenanceApiService {
 

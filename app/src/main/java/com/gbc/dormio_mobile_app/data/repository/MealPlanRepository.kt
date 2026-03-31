@@ -7,7 +7,7 @@ import com.gbc.dormio_mobile_app.data.model.mealplan.MealPlanType
 import com.gbc.dormio_mobile_app.data.model.mealplan.MealWithIngredients
 import com.gbc.dormio_mobile_app.data.model.mealplan.SubscribeRequest
 import com.gbc.dormio_mobile_app.data.model.mealplan.UserMealPlan
-import com.gbc.dormio_mobile_app.network.ApiService.MealPlanApiService
+import com.gbc.dormio_mobile_app.network.ApiServices.MealPlanApiService
 import com.gbc.dormio_mobile_app.utils.NetworkResult
 import com.gbc.dormio_mobile_app.utils.handleApiResponse
 import com.gbc.dormio_mobile_app.utils.safeApiCall

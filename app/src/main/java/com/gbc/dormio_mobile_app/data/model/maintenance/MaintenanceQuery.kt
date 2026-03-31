@@ -1,4 +1,4 @@
-package com.gbc.dormio_mobile_app.data.model
+package com.gbc.dormio_mobile_app.data.model.maintenance
 
 data class MaintenanceQuery(
     val search: String? = null,
