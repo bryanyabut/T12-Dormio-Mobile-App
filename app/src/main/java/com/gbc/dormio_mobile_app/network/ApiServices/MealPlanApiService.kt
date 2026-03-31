@@ -1,4 +1,4 @@
-package com.gbc.dormio_mobile_app.network.ApiService
+package com.gbc.dormio_mobile_app.network.ApiServices
 
 import com.gbc.dormio_mobile_app.data.model.mealplan.AdminTemplateRequest
 import com.gbc.dormio_mobile_app.data.model.mealplan.DayGroup

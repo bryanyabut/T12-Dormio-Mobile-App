@@ -7,9 +7,8 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.gbc.dormio_mobile_app.data.model.RequestStatus
+import com.gbc.dormio_mobile_app.data.model.maintenance.RequestStatus
 import com.gbc.dormio_mobile_app.data.model.UserDto
-import com.gbc.dormio_mobile_app.network.AuthApiService
 import com.gbc.dormio_mobile_app.network.FcmTokenManager
 import com.gbc.dormio_mobile_app.ui.maintenance.MaintenanceActivity
 import com.google.firebase.messaging.FirebaseMessagingService

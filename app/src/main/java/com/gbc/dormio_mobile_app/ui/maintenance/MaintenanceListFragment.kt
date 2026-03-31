@@ -16,8 +16,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gbc.dormio_mobile_app.R
-import com.gbc.dormio_mobile_app.data.model.MaintenanceQuery
-import com.gbc.dormio_mobile_app.data.model.RequestStatus
+import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceQuery
+import com.gbc.dormio_mobile_app.data.model.maintenance.RequestStatus
 import com.gbc.dormio_mobile_app.fcm.MaintenanceUpdateBus
 import com.gbc.dormio_mobile_app.viewmodel.maintenance.AdminMaintenanceViewModel
 import com.gbc.dormio_mobile_app.viewmodel.maintenance.StudentMaintenanceViewModel

@@ -3,11 +3,11 @@ package com.gbc.dormio_mobile_app.viewmodel.maintenance
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gbc.dormio_mobile_app.data.model.MaintenanceAllReqUiState
-import com.gbc.dormio_mobile_app.data.model.MaintenanceDetailUiState
-import com.gbc.dormio_mobile_app.data.model.MaintenanceFormUiState
-import com.gbc.dormio_mobile_app.data.model.MaintenanceQuery
-import com.gbc.dormio_mobile_app.data.model.UpdateMaintenanceRequestDto
+import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceAllReqUiState
+import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceDetailUiState
+import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceFormUiState
+import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceQuery
+import com.gbc.dormio_mobile_app.data.model.maintenance.UpdateMaintenanceRequestDto
 import com.gbc.dormio_mobile_app.data.repository.MaintenanceRepository
 import com.gbc.dormio_mobile_app.utils.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel

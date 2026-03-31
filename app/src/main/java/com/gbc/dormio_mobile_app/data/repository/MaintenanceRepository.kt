@@ -1,15 +1,15 @@
 package com.gbc.dormio_mobile_app.data.repository
 
 
-import com.gbc.dormio_mobile_app.data.model.CreateMaintenanceRequestDto
-import com.gbc.dormio_mobile_app.data.model.MaintenanceListResponse
-import com.gbc.dormio_mobile_app.data.model.MaintenanceResponse
-import com.gbc.dormio_mobile_app.data.model.UpdateMaintenanceRequestDto
-import com.gbc.dormio_mobile_app.data.model.UpdateMaintenanceStatusDto
-import com.gbc.dormio_mobile_app.network.MaintenanceApiService
+import com.gbc.dormio_mobile_app.data.model.maintenance.CreateMaintenanceRequestDto
+import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceListResponse
+import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceResponse
+import com.gbc.dormio_mobile_app.data.model.maintenance.UpdateMaintenanceRequestDto
+import com.gbc.dormio_mobile_app.data.model.maintenance.UpdateMaintenanceStatusDto
+import com.gbc.dormio_mobile_app.network.ApiServices.MaintenanceApiService
 import com.gbc.dormio_mobile_app.utils.NetworkResult
 import com.gbc.dormio_mobile_app.utils.safeApiCall
-import com.gbc.dormio_mobile_app.data.model.MaintenanceQuery
+import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceQuery
 import javax.inject.Inject
 
 class MaintenanceRepository @Inject constructor(
