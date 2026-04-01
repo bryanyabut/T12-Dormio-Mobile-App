@@ -38,4 +38,10 @@ object Constants {
     const val API_MEAL_PLAN_MEAL_ITEMS = "meal-plans/meal-items"
 
 
+    //PROFILE MANAGEMENT ENDPOINTS
+    const val API_PROFILE = "profile"
+    const val API_PROFILE_AVATAR = "profile/avatar"
+    const val KEY_PROFILE_IMAGE = "profileImage"
+
+
 }

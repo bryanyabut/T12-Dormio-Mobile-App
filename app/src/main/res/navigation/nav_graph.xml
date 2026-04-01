@@ -18,7 +18,18 @@
     <fragment
         android:id="@+id/accountSettingsFragment"
         android:name="com.gbc.dormio_mobile_app.ui.account.AccountSettingsFragment"
+        android:label="Profile" >
+
+        <action
+            android:id="@+id/action_accountSettings_to_profile"
+            app:destination="@id/profileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.account.ProfileFragment"
         android:label="Profile" />
+
 
     <!-- Feature fragments -->
     <fragment
