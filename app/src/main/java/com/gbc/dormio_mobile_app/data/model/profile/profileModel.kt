@@ -16,10 +16,19 @@ data class UserProfileDetails(
     val lastName: String?
 )
 
+data class ProfileUpdateRequest(
+    val firstName: String?,
+    val lastName: String?,
+    val email: String?,
+    val studentId: String?,
+    val roomNumber: String?
+)
+
 //UI state for profile screen
 data class ProfileUiState(
     val isLoading: Boolean = false,
     val profile: ProfileData? = null,
     val errorMessage: String? = null,
-    val userRole: String? = null
+    val userRole: String? = null,
+    val isUpdateSuccessful: Boolean = false
 )

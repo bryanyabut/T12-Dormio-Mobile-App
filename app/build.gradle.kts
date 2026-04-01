@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
 
     id("com.google.devtools.ksp")
+    id("org.jetbrains.kotlin.kapt")
     id("com.google.dagger.hilt.android")
 
     // google-services plugin for Firebase
@@ -88,4 +89,8 @@ dependencies {
 
     //constraint layout
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+
+    //glid library for image loading
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    kapt("com.github.bumptech.glide:compiler:4.16.0")
 }

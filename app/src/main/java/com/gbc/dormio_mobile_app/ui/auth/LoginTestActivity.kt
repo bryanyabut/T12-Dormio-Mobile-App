@@ -53,10 +53,10 @@ class LoginTestActivity : AppCompatActivity() {
         }
 
         viewModel.login(
-            email = "john.doe@example.com",
-            password = "pass123"
-//            email = "admin@dormio.com",
-//            password = "adminpass"
+//            email = "john.doe@example.com",
+//            password = "pass123"
+            email = "admin@dormio.com",
+            password = "adminpass"
         )
     }
 }

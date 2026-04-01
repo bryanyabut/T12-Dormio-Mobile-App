@@ -1,9 +1,11 @@
 package com.gbc.dormio_mobile_app.viewmodel.profile
 
 import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gbc.dormio_mobile_app.data.model.profile.ProfileUiState
+import com.gbc.dormio_mobile_app.data.model.profile.ProfileUpdateRequest
 import com.gbc.dormio_mobile_app.data.repository.ProfileRepository
 import com.gbc.dormio_mobile_app.network.TokenManager
 import com.gbc.dormio_mobile_app.utils.NetworkResult
@@ -56,6 +58,58 @@ class ProfileViewModel @Inject constructor(
                 is NetworkResult.Loading -> {}
             }
         }
+    }
+
+    fun updateProfile(request: ProfileUpdateRequest){
+        _uiState.update { it.copy(
+            isLoading = true,
+            errorMessage = null,
+            isUpdateSuccessful = false
+        )}
+
+        viewModelScope.launch {
+            when (val result = repository.updateProfile(request)) {
+                is NetworkResult.Success -> {
+                    _uiState.update { it.copy(
+                        isLoading = false,
+                        profile = result.data,
+                        isUpdateSuccessful = true
+                    )}
+                }
+                is NetworkResult.Error -> {
+                    _uiState.update { it.copy(isLoading = false, errorMessage = result.apiError.message) }
+                }
+                is NetworkResult.Loading -> {}
+            }
+        }
+    }
+
+    fun uploadAvatar(uri: Uri) {
+        _uiState.update { it.copy(
+            isLoading = true,
+            errorMessage = null
+        ) }
+
+        viewModelScope.launch {
+            when (val result = repository.uploadAvatar(context, uri)) {
+                is NetworkResult.Success -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            isLoading = false,
+                            profile = state.profile?.copy(avatarUrl = result.data)
+                        )
+                    }
+                }
+                is NetworkResult.Error -> {
+                    _uiState.update { it.copy(isLoading = false, errorMessage = result.apiError.message) }
+                }
+                is NetworkResult.Loading -> {}
+            }
+        }
+    }
+
+    fun resetUpdateStatus() {
+        _uiState.update { it.copy(isUpdateSuccessful = false) }
     }
 
 }

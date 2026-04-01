@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.gbc.dormio_mobile_app.R
 import com.gbc.dormio_mobile_app.databinding.ActivityAccountSettingsBinding
 import com.gbc.dormio_mobile_app.network.TokenManager.clearToken
@@ -52,6 +53,13 @@ class AccountSettingsFragment : Fragment(R.layout.activity_account_settings) {
 
                     binding.accountName.text = fullName
                     binding.accountEmail.text = profile.user.email
+
+                    Glide.with(this@AccountSettingsFragment)
+                        .load(profile.avatarUrl)
+                        .placeholder(R.drawable.outline_account_circle_24)
+                        .error(R.drawable.outline_account_circle_24)
+                        .circleCrop()
+                        .into(binding.ivAccountAvatar)
                 }
 
                 if (state.isLoading) {
@@ -76,6 +84,11 @@ class AccountSettingsFragment : Fragment(R.layout.activity_account_settings) {
 
             activity?.finish()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.fetchProfile()
     }
 
     override fun onDestroyView() {

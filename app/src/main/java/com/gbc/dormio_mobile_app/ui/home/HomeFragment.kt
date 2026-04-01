@@ -65,4 +65,9 @@ class HomeFragment : Fragment(R.layout.activity_home) {
             findNavController().navigate(R.id.choresFragment)
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.fetchProfile()
+    }
 }
