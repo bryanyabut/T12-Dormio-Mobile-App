@@ -39,6 +39,38 @@
     <fragment
         android:id="@+id/choresFragment"
         android:name="com.gbc.dormio_mobile_app.ui.chores.ChoresFragment"
-        android:label="Chores" />
+        android:label="Chores">
+        <action
+            android:id="@+id/action_choresFragment_to_choreWeeklyFragment"
+            app:destination="@id/choreWeeklyFragment" />
+        <action
+            android:id="@+id/action_choresFragment_to_choreCompleteFragment"
+            app:destination="@id/choreCompleteFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/choreWeeklyFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.chores.ChoreWeeklyFragment"
+        android:label="Weekly Schedule">
+        <action
+            android:id="@+id/action_choreWeeklyFragment_to_choresFragment"
+            app:destination="@id/choresFragment"
+            app:popUpTo="@id/choresFragment"
+            app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_choreWeeklyFragment_to_choreCompleteFragment"
+            app:destination="@id/choreCompleteFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/choreCompleteFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.chores.ChoreCompleteFragment"
+        android:label="Mark Completion">
+        <action
+            android:id="@+id/action_choreCompleteFragment_to_choresFragment"
+            app:destination="@id/choresFragment"
+            app:popUpTo="@id/choresFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
 
 </navigation>
