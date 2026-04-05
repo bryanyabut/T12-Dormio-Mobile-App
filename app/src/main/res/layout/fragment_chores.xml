@@ -134,8 +134,6 @@
                         android:id="@+id/choreItem1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:clickable="true"
-                        android:focusable="true"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:paddingBottom="10dp"
@@ -170,6 +168,75 @@
                                 android:text="Due Today"
                                 android:textColor="@color/feature_red"
                                 android:textSize="12sp" />
+
+                            <!-- Assigned User Icons -->
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="6dp"
+                                    android:text="Assigned:"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="11sp" />
+
+                                <TextView
+                                    android:layout_width="28dp"
+                                    android:layout_height="28dp"
+                                    android:layout_marginEnd="4dp"
+                                    android:background="@drawable/bg_avatar_blue"
+                                    android:gravity="center"
+                                    android:text="JD"
+                                    android:textColor="@color/white"
+                                    android:textSize="9sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="28dp"
+                                    android:layout_height="28dp"
+                                    android:layout_marginEnd="4dp"
+                                    android:background="@drawable/bg_avatar_blue"
+                                    android:gravity="center"
+                                    android:text="AM"
+                                    android:textColor="@color/white"
+                                    android:textSize="9sp"
+                                    android:textStyle="bold" />
+
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageButton
+                                android:id="@+id/btnCompleteChore1"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="Mark Complete"
+                                android:padding="4dp"
+                                android:src="@drawable/outline_arrow_cool_down_24"
+                                app:tint="@color/feature_green" />
+
+                            <ImageButton
+                                android:id="@+id/btnEditChore1"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="Edit Chore"
+                                android:padding="4dp"
+                                android:src="@drawable/outline_contract_edit_24"
+                                app:tint="@color/primary_blue" />
+
                         </LinearLayout>
                     </LinearLayout>
 
@@ -182,8 +249,6 @@
                         android:id="@+id/choreItem2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:clickable="true"
-                        android:focusable="true"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:paddingBottom="10dp"
@@ -218,6 +283,85 @@
                                 android:text="Due 6pm"
                                 android:textColor="#757575"
                                 android:textSize="12sp" />
+
+                            <!-- Assigned User Icons -->
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="6dp"
+                                    android:text="Assigned:"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="11sp" />
+
+                                <TextView
+                                    android:layout_width="28dp"
+                                    android:layout_height="28dp"
+                                    android:layout_marginEnd="4dp"
+                                    android:background="@drawable/bg_avatar_blue"
+                                    android:gravity="center"
+                                    android:text="TS"
+                                    android:textColor="@color/white"
+                                    android:textSize="9sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="28dp"
+                                    android:layout_height="28dp"
+                                    android:layout_marginEnd="4dp"
+                                    android:background="@drawable/bg_avatar_blue"
+                                    android:gravity="center"
+                                    android:text="LK"
+                                    android:textColor="@color/white"
+                                    android:textSize="9sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="28dp"
+                                    android:layout_height="28dp"
+                                    android:background="@drawable/bg_avatar_blue"
+                                    android:gravity="center"
+                                    android:text="RB"
+                                    android:textColor="@color/white"
+                                    android:textSize="9sp"
+                                    android:textStyle="bold" />
+
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageButton
+                                android:id="@+id/btnCompleteChore2"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="Mark Complete"
+                                android:padding="4dp"
+                                android:src="@drawable/outline_arrow_cool_down_24"
+                                app:tint="@color/feature_green" />
+
+                            <ImageButton
+                                android:id="@+id/btnEditChore2"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="Edit Chore"
+                                android:padding="4dp"
+                                android:src="@drawable/outline_contract_edit_24"
+                                app:tint="@color/primary_blue" />
+
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>

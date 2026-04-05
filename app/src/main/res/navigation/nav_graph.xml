@@ -46,6 +46,24 @@
         <action
             android:id="@+id/action_choresFragment_to_choreCompleteFragment"
             app:destination="@id/choreCompleteFragment" />
+        <action
+            android:id="@+id/action_choresFragment_to_addChoreFragment"
+            app:destination="@id/addChoreFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addChoreFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.chores.AddChoreFragment"
+        android:label="Add Chore">
+        <argument
+            android:name="choreId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_addChoreFragment_to_choresFragment"
+            app:destination="@id/choresFragment"
+            app:popUpTo="@id/choresFragment"
+            app:popUpToInclusive="false" />
     </fragment>
 
     <fragment
