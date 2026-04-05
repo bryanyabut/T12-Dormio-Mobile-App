@@ -114,58 +114,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:text="Upload Photo"
-                        android:textColor="#757575"
-                        android:textSize="12sp"
-                        android:textAllCaps="true"
-                        android:letterSpacing="0.08" />
-
-                    <LinearLayout
-                        android:id="@+id/photoUploadArea"
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        android:background="@drawable/bg_photo_upload"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <ImageView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:contentDescription="Upload"
-                            android:src="@android:drawable/ic_menu_gallery"
-                            app:tint="#AAAAAA" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Upload Photo here:"
-                            android:textColor="#AAAAAA"
-                            android:textSize="13sp" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
+            
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
