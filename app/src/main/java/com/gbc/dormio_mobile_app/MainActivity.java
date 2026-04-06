@@ -37,8 +37,8 @@ public class MainActivity extends AppCompatActivity {
                 R.id.accountSettingsFragment,
                 R.id.choresFragment,
                 R.id.mealsFragment,
-                R.id.budgetFragment
-
+                R.id.budgetFragment,
+                R.id.mealsFragment
         ));
 
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {

@@ -3,6 +3,7 @@ package com.gbc.dormio_mobile_app.network
 import android.content.Context
 import android.util.Log
 import com.gbc.dormio_mobile_app.data.model.DeviceTokenRequest
+import com.gbc.dormio_mobile_app.network.ApiServices.AuthApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject

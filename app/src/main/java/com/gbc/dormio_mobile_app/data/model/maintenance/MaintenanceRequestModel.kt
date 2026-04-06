@@ -1,4 +1,6 @@
-package com.gbc.dormio_mobile_app.data.model
+package com.gbc.dormio_mobile_app.data.model.maintenance
+
+import com.gbc.dormio_mobile_app.data.model.UserDto
 
 data class MaintenanceRequestDto(
     val id: String,
