@@ -4,7 +4,9 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceDetailUiState
 import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceFormUiState
+import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceResponse
 import com.gbc.dormio_mobile_app.data.repository.MaintenanceRepository
 import com.gbc.dormio_mobile_app.network.TokenManager
 import com.gbc.dormio_mobile_app.utils.FileHandle
@@ -27,10 +29,68 @@ class MaintenanceViewModel @Inject constructor(
     private val _formState = MutableStateFlow(MaintenanceFormUiState())
     val formState: StateFlow<MaintenanceFormUiState> = _formState.asStateFlow()
 
+    private val _detailState = MutableStateFlow<NetworkResult<MaintenanceResponse>>(NetworkResult.Loading)
+    val detailState: StateFlow<NetworkResult<MaintenanceResponse>> = _detailState.asStateFlow()
 
     init {
         val role = TokenManager.getUserRole(context)
         _formState.update { it.copy(userRole = role) }
+    }
+
+    fun getRequestDetail(requestId: Int) {
+        viewModelScope.launch {
+            _detailState.value = NetworkResult.Loading
+
+            val role = formState.value.userRole
+
+            val result = if (role == "ADMIN") {
+                repository.getRequestDetailAdmin(requestId)
+            } else {
+                repository.getRequestDetailStudent(requestId)
+            }
+
+            _detailState.value = result
+        }
+    }
+
+    fun updateMaintenanceRequest(
+        requestId: Int,
+        title: String?,
+        description: String?,
+        urgency: String?,
+        imageUri: Uri?
+    ) {
+        _formState.update { it.copy(
+            isLoading = true,
+            errorMessage = null,
+            successMessage = null
+        ) }
+
+        viewModelScope.launch {
+            val imageFile = imageUri?.let { uri ->
+                FileHandle.prepareImage(context, "image", uri)?.file
+            }
+
+            val result = repository.updateRequestStudent(requestId, title, description, urgency, imageFile)
+
+            when (result) {
+                is NetworkResult.Success -> {
+                    _formState.update { it.copy(
+                        isLoading = false,
+                        successMessage = "Request updated successfully!"
+                    )}
+                    imageFile?.delete()
+                }
+                is NetworkResult.Error -> {
+                    _formState.update { it.copy(
+                        isLoading = false,
+                        errorMessage = result.apiError.message ?: "Failed to update"
+                    )}
+                    imageFile?.delete()
+                }
+                else -> {}
+            }
+        }
     }
 
     fun createMaintenanceRequest(
@@ -39,7 +99,11 @@ class MaintenanceViewModel @Inject constructor(
         urgency: String,
         imageUri: Uri?
     ) {
-        _formState.update { it.copy(isLoading = true, errorMessage = null, successMessage = null) }
+        _formState.update { it.copy(
+            isLoading = true,
+            errorMessage = null,
+            successMessage = null
+        ) }
 
         viewModelScope.launch {
             val imageFile = imageUri?.let { uri ->
@@ -73,5 +137,29 @@ class MaintenanceViewModel @Inject constructor(
     fun resetFormState() {
         val currentRole = _formState.value.userRole
         _formState.value = MaintenanceFormUiState(userRole = currentRole)
+    }
+
+    fun updateRequestStatus(requestId: Int, status: String, comment: String) {
+        _formState.update { it.copy(isLoading = true) }
+
+        viewModelScope.launch {
+            val result = repository.updateRequestStatus(requestId, status, comment)
+
+            when (result) {
+                is NetworkResult.Success -> {
+                    _formState.update { it.copy(
+                        isLoading = false,
+                        successMessage = "Comment added successfully!"
+                    )}
+                }
+                is NetworkResult.Error -> {
+                    _formState.update { it.copy(
+                        isLoading = false,
+                        errorMessage = result.apiError.message
+                    )}
+                }
+                else -> {}
+            }
+        }
     }
 }

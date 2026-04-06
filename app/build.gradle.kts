@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
 
+    id("androidx.navigation.safeargs.kotlin")
     id("com.google.devtools.ksp")
     id("org.jetbrains.kotlin.kapt")
     id("com.google.dagger.hilt.android")
@@ -87,8 +88,9 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-messaging")
 
-    //constraint layout
+    //layout
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     //glid library for image loading
     implementation("com.github.bumptech.glide:glide:4.16.0")

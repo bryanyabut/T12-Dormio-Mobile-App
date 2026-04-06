@@ -7,5 +7,11 @@
         <item>HIGH</item>
     </string-array>
 
+    <string-array name="status_levels">
+        <item>PENDING</item>
+        <item>IN_PROGRESS</item>
+        <item>RESOLVED</item>
+    </string-array>
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

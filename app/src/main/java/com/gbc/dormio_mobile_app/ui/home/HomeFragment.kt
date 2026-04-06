@@ -50,7 +50,7 @@ class HomeFragment : Fragment(R.layout.activity_home) {
 
     private fun setupClickListeners(view: View){
         view.findViewById<MaterialCardView>(R.id.maintenanceCard).setOnClickListener {
-            findNavController().navigate(R.id.maintenanceFragment)
+            findNavController().navigate(R.id.maintenanceListFragment)
         }
 
         view.findViewById<MaterialCardView>(R.id.mealPlanCard).setOnClickListener {

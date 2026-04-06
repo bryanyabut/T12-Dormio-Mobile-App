@@ -29,7 +29,14 @@ class CreateMaintenanceFragment : Fragment(R.layout.fragment_create_maintenance)
     ) { uri: android.net.Uri? ->
         uri?.let {
             selectedImageUri = it
-            binding.ivPreview.setImageURI(it)
+
+            binding.ivPreview.visibility = View.VISIBLE
+
+            com.bumptech.glide.Glide.with(this)
+                .load(it)
+                .centerCrop()
+                .into(binding.ivPreview)
+
             binding.ivPreview.visibility = View.VISIBLE
         }
     }
