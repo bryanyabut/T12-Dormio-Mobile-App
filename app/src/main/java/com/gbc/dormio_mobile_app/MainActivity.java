@@ -2,19 +2,19 @@ package com.gbc.dormio_mobile_app;
 
 import android.os.Bundle;
 import android.view.View;
-import androidx.activity.EdgeToEdge;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import dagger.hilt.android.AndroidEntryPoint;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
+import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
@@ -35,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
                 R.id.homeFragment,
                 R.id.notificationsFragment,
                 R.id.accountSettingsFragment,
+                R.id.choresFragment,
+                R.id.mealsFragment,
+                R.id.budgetFragment,
                 R.id.mealsFragment
         ));
 
