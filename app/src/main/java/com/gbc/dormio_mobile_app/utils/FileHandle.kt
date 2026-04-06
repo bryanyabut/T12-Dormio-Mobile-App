@@ -18,7 +18,8 @@ object FileHandle {
     fun prepareImage(context: Context, partName: String, fileUri: Uri): PreparedImage? {
         val file = getFileFromUri(context, fileUri) ?: return null
 
-        val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+        val mimeType = context.contentResolver.getType(fileUri) ?: "image/jpeg"
+        val requestFile = file.asRequestBody(mimeType.toMediaTypeOrNull())
 
         val part = MultipartBody.Part.createFormData(partName, file.name, requestFile)
 

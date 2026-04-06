@@ -10,7 +10,6 @@ import androidx.core.app.NotificationCompat
 import com.gbc.dormio_mobile_app.data.model.maintenance.RequestStatus
 import com.gbc.dormio_mobile_app.data.model.UserDto
 import com.gbc.dormio_mobile_app.network.FcmTokenManager
-import com.gbc.dormio_mobile_app.ui.maintenance.MaintenanceActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
@@ -75,27 +74,27 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             manager.createNotificationChannel(channel)
         }
 
-        val intent = Intent(this, MaintenanceActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            requestId?.let { putExtra("REQUEST_ID", it) }
-        }
+//        val intent = Intent(this, MaintenanceActivity::class.java).apply {
+//            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+//            requestId?.let { putExtra("REQUEST_ID", it) }
+//        }
 
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            System.currentTimeMillis().toInt(),
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+//        val pendingIntent = PendingIntent.getActivity(
+//            this,
+//            System.currentTimeMillis().toInt(),
+//            intent,
+//            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+//        )
 
-        val notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle(title)
-            .setContentText(message)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setAutoCancel(true)
-            .setContentIntent(pendingIntent)
-            .build()
+//        val notification = NotificationCompat.Builder(this, channelId)
+//            .setContentTitle(title)
+//            .setContentText(message)
+//            .setSmallIcon(android.R.drawable.ic_dialog_info)
+//            .setAutoCancel(true)
+//            .setContentIntent(pendingIntent)
+//            .build()
 
-        manager.notify(System.currentTimeMillis().toInt(), notification)
+//        manager.notify(System.currentTimeMillis().toInt(), notification)
     }
 
     override fun onNewToken(token: String) {

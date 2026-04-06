@@ -11,7 +11,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.gbc.dormio_mobile_app.MainActivity
 import com.gbc.dormio_mobile_app.R
-import com.gbc.dormio_mobile_app.ui.maintenance.MaintenanceActivity
 import com.gbc.dormio_mobile_app.viewmodel.auth.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
