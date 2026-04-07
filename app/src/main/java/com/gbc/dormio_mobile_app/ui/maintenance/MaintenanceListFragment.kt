@@ -1,427 +1,199 @@
 package com.gbc.dormio_mobile_app.ui.maintenance
 
+import android.app.AlertDialog
 import android.os.Bundle
-import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Spinner
-import android.widget.Toast
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.SearchView
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gbc.dormio_mobile_app.R
-import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceQuery
-import com.gbc.dormio_mobile_app.data.model.maintenance.RequestStatus
-import com.gbc.dormio_mobile_app.fcm.MaintenanceUpdateBus
-import com.gbc.dormio_mobile_app.viewmodel.maintenance.AdminMaintenanceViewModel
-import com.gbc.dormio_mobile_app.viewmodel.maintenance.StudentMaintenanceViewModel
+import com.gbc.dormio_mobile_app.databinding.FragmentMaintenanceListBinding
+import com.gbc.dormio_mobile_app.viewmodel.maintenance.MaintenanceListViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MaintenanceListFragment : Fragment(R.layout.fragment_maintenance_list) {
 
-    private val studentViewModel: StudentMaintenanceViewModel by viewModels()
-    private val adminViewModel: AdminMaintenanceViewModel by viewModels()
-
-    private lateinit var recyclerView: RecyclerView
+    private var _binding: FragmentMaintenanceListBinding? = null
+    private val binding get() = _binding!!
+    private val viewModel: MaintenanceListViewModel by viewModels()
     private lateinit var adapter: MaintenanceAdapter
-
-    private var isAdmin = false
-
-    private lateinit var searchEditText: EditText
-    private lateinit var statusSpinner: Spinner
-    private lateinit var urgencySpinner: Spinner
-
-    private lateinit var createButton: Button
-
-    private var pendingRequestId: String? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        searchEditText = view.findViewById(R.id.searchEditText)
-        statusSpinner = view.findViewById(R.id.statusSpinner)
-        urgencySpinner = view.findViewById(R.id.urgencySpinner)
-        createButton = view.findViewById(R.id.btnCreateRequest)
-
-        recyclerView = view.findViewById(R.id.recyclerMaintenance)
-
-        createButton.setOnClickListener {
-            openCreateDialog()
-        }
-
-        // Setup status spinner
-        val statusAdapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            listOf("ALL", "PENDING", "IN_PROGRESS", "RESOLVED")
-        )
-        statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        statusSpinner.adapter = statusAdapter
-
-        // Setup urgency spinner
-        val urgencyAdapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            listOf("ALL", "LOW", "MEDIUM", "HIGH")
-        )
-        urgencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        urgencySpinner.adapter = urgencyAdapter
-
-        determineUserRole()
-
-        createButton.visibility = if (!isAdmin) View.VISIBLE else View.GONE
-
-        setupFilters()
+        _binding = FragmentMaintenanceListBinding.bind(view)
 
         setupRecyclerView()
+        setupObservers()
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
-                // Listen for real-time updates from FCM
-                MaintenanceUpdateBus.updatesFlow.collect { (requestId, status, user) ->
-                    adapter.updateRequestStatus(requestId, status, user)
+        binding.swipeRefresh.setOnRefreshListener {
+            viewModel.fetchRequests(isRefresh = true)
+        }
+
+        binding.fabCreateRequest.setOnClickListener {
+            findNavController().navigate(R.id.action_maintenanceListFragment_to_createMaintenanceFragment)
+        }
+
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                viewModel.onSearchQueryChanged(query)
+                binding.searchView.clearFocus()
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText.isNullOrEmpty()) {
+                    viewModel.onSearchQueryChanged(null)
                 }
+                return true
             }
+        })
+
+        binding.btnSort.setOnClickListener {
+            showSortDialog()
         }
-
-        observeViewModel()
-
-        createState()
-
-        // Load initial data
-        loadInitialData()
-
-        // Check for pending REQUEST_ID from arguments (from notification tap)
-        val intReqId = arguments?.getInt("REQUEST_ID", -1) ?: -1
-        pendingRequestId = if (intReqId != -1) {
-            intReqId.toString()
-        } else {
-            arguments?.getString("REQUEST_ID")
-        }
-
     }
 
-    private fun createState(){
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
-                studentViewModel.formUiState.collect { state ->
-                    if (state.isLoading) {
-                        Toast.makeText(requireContext(), "is loading", Toast.LENGTH_SHORT).show()
-                    }
-
-                    // Handle success
-                    state.successMessage?.let { message ->
-                        // Show success message
-                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-
-                        // Refresh the list
-                        studentViewModel.refresh()
-
-                        // Clear form state after handling success
-                        studentViewModel.clearFormState()
-                    }
-
-                    // Handle error
-                    state.errorMessage?.let { error ->
-                        Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
-                        studentViewModel.clearFormState()
-                    }
+    private fun showSortDialog() {
+        val options = arrayOf("Newest First", "Oldest First", "Priority (High-Low)")
+        AlertDialog.Builder(requireContext())
+            .setTitle("Sort By")
+            .setItems(options) { _, which ->
+                val sortVal = when(which) {
+                    0 -> "createdAt:desc"
+                    1 -> "createdAt:asc"
+                    else -> "urgency:desc"
                 }
-            }
-        }
+                viewModel.onSortChanged(sortVal)
+            }.show()
     }
 
-    private fun setupFilters() {
-
-        // Helper to create query object
-        fun buildQuery(): MaintenanceQuery {
-            return MaintenanceQuery(
-                search = searchEditText.text.toString().takeIf { it.isNotBlank() },
-                status = statusSpinner.selectedItem.toString().takeIf { it != "ALL" },
-                urgency = urgencySpinner.selectedItem.toString().takeIf { it != "ALL" }
-            )
-        }
-
-        // Search text
-        searchEditText.addTextChangedListener {
-            val query = buildQuery()
-            if (isAdmin) {
-                adminViewModel.fetchAllRequests(query)
-            } else {
-                studentViewModel.fetchMyRequests(query)
-            }
-        }
-
-        // Status spinner
-        statusSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                val query = buildQuery()
-                if (isAdmin) {
-                    adminViewModel.fetchAllRequests(query)
-                } else {
-                    studentViewModel.fetchMyRequests(query)
-                }
-            }
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
-
-        // Urgency spinner
-        urgencySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                val query = buildQuery()
-                if (isAdmin) {
-                    adminViewModel.fetchAllRequests(query)
-                } else {
-                    studentViewModel.fetchMyRequests(query)
-                }
-            }
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
-    }
-
-    private fun openRequestDetailDialog(requestId: String) {
-        // Inflate dialog layout
-        val dialogView = layoutInflater.inflate(R.layout.dialog_request_detail_maintenance, null)
-        val titleInput = dialogView.findViewById<EditText>(R.id.etTitle)
-        val descInput = dialogView.findViewById<EditText>(R.id.etDescription)
-        val urgencySpinner = dialogView.findViewById<Spinner>(R.id.spinnerUrgency)
-        val btnUpdate = dialogView.findViewById<Button>(R.id.btnUpdateRequest)
-        val btnDelete = dialogView.findViewById<Button>(R.id.btnDeleteRequest)
-
-        // Setup urgency spinner
-        val urgencyAdapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            listOf("LOW", "MEDIUM", "HIGH")
-        )
-        urgencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        urgencySpinner.adapter = urgencyAdapter
-
-        // Fetch request details first
-        studentViewModel.requestDetail(requestId)
-
-        // Collect detail state
-        val job = viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
-                studentViewModel.detailReqUiState.collectLatest { state ->
-                    state.requestDetail?.let { request ->
-                        titleInput.setText(request.title)
-                        descInput.setText(request.description)
-                        val pos = urgencyAdapter.getPosition(request.urgency.toString())
-                        urgencySpinner.setSelection(pos)
-                    }
-                }
-            }
-        }
-
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle("Request Details")
-            .setView(dialogView)
-            .create()
-
-        dialog.setOnDismissListener {
-            job.cancel()
-        }
-
-        // Handle update
-        btnUpdate.setOnClickListener {
-            val title = titleInput.text.toString()
-            val desc = descInput.text.toString()
-            val urgency = urgencySpinner.selectedItem.toString()
-
-            if (title.isNotBlank() && desc.isNotBlank()) {
-                studentViewModel.updateRequest(requestId, title, desc, urgency)
-            }
-
-            dialog.dismiss()
-        }
-
-        // Handle delete
-        btnDelete.setOnClickListener {
-            studentViewModel.deleteRequest(requestId)
-            dialog.dismiss()
-        }
-
-        // Disable editing if admin
-        if (isAdmin) {
-            titleInput.isEnabled = false
-            descInput.isEnabled = false
-            urgencySpinner.isEnabled = false
-            btnUpdate.visibility = View.GONE
-            btnDelete.visibility = View.GONE
-        }
-
-        dialog.show()
-    }
-
-    // Dialog to create new request
-    private fun openCreateDialog() {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_create_request_maintenance, null)
-        val titleInput = dialogView.findViewById<EditText>(R.id.etTitle)
-        val descInput = dialogView.findViewById<EditText>(R.id.etDescription)
-        val urgencySpinner = dialogView.findViewById<Spinner>(R.id.spinnerUrgency)
-
-        // populate urgency
-        val urgencyAdapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            listOf("LOW", "MEDIUM", "HIGH")
-        )
-        urgencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        urgencySpinner.adapter = urgencyAdapter
-
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle("New Maintenance Request")
-            .setView(dialogView)
-            .setPositiveButton("Create") { dialog, _ ->
-                val title = titleInput.text.toString()
-                val desc = descInput.text.toString()
-                val urgency = urgencySpinner.selectedItem.toString()
-
-                if (title.isNotBlank() && desc.isNotBlank()) {
-                    createMaintenanceRequest(title, desc, urgency)
-                }
-
-                dialog.dismiss()
-            }
-            .setNegativeButton("Cancel") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
-    }
-
-    // create request using ViewModel
-    private fun createMaintenanceRequest(title: String, description: String, urgency: String) {
-        studentViewModel.createRequest(title, description, urgency)
-    }
-
-    // determine user role
-    private fun determineUserRole() {
-
-        // TODO: replace real user session logic
-        val role = arguments?.getString("user_role") ?: "STUDENT"
-        isAdmin = role == "ADMIN"
-    }
-
-    // setup RecyclerView and adapter
     private fun setupRecyclerView() {
-
-        adapter = MaintenanceAdapter(
-            showAdminButtons = isAdmin,
-            onAcceptStatus = { request ->
-                adminViewModel.updateRequestStatus(
-                    request.id,
-                    RequestStatus.IN_PROGRESS.value
-                )
-            },
-            onResolvedStatus = { request ->
-                adminViewModel.updateRequestStatus(
-                    request.id,
-                    RequestStatus.RESOLVED.value
-                )
-            },
-            onDetail = { requestId ->
-                openRequestDetailDialog(requestId)
-            },
-            onDelete = { request ->
-                adminViewModel.deleteRequests(request.id)
-            }
-        )
-
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = adapter
-
-        setupPagination()
-    }
-
-    //observe ViewModel state and update UI
-    private fun observeViewModel() {
-
-        viewLifecycleOwner.lifecycleScope.launch {
-
-            viewLifecycleOwner.repeatOnLifecycle(
-                androidx.lifecycle.Lifecycle.State.STARTED
-            ) {
-
-                if (isAdmin) {
-
-                    adminViewModel.allReqUiState.collect { state ->
-                        // post the adapter update to avoid modifying adapter during layout/scroll
-                        recyclerView.post { adapter.submitList(state.maintenanceRequests) }
-
-                        pendingRequestId?.let { reqId ->
-                            if (state.maintenanceRequests.any { it.id == reqId }) {
-                                openRequestDetailDialog(reqId)
-                                pendingRequestId = null
-                            }
-                        }
-                    }
-
-                } else {
-
-                    studentViewModel.allReqUiState.collect { state ->
-                        // Post the adapter update to avoid modifying adapter during layout/scroll
-                        recyclerView.post { adapter.submitList(state.maintenanceRequests) }
-
-                        pendingRequestId?.let { reqId ->
-                            if (state.maintenanceRequests.any { it.id == reqId }) {
-                                openRequestDetailDialog(reqId)
-                                pendingRequestId = null
-                            }
-                        }
-                    }
-
-                }
-            }
+        adapter = MaintenanceAdapter { requestId ->
+            val action = MaintenanceListFragmentDirections
+                .actionMaintenanceListFragmentToMaintenanceDetailFragment(requestId)
+            findNavController().navigate(action)
         }
-    }
+        binding.rvRequests.adapter = adapter
+        binding.rvRequests.layoutManager = LinearLayoutManager(requireContext())
 
-    // load initial data based on role
-    private fun loadInitialData() {
+        val swipeHandler = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
-        if (isAdmin) {
-            adminViewModel.fetchAllRequests()
-        } else {
-            studentViewModel.fetchMyRequests()
-        }
-    }
-
-    // setup pagination by detecting when user scrolls near bottom
-    private fun setupPagination() {
-
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-
-            override fun onScrolled(
+            override fun onChildDraw(
+                c: android.graphics.Canvas,
                 recyclerView: RecyclerView,
-                dx: Int,
-                dy: Int
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
             ) {
+                val itemView = viewHolder.itemView
+                val paint = android.graphics.Paint()
+
+                if (dX < 0) {
+                    paint.color = android.graphics.Color.RED
+                    c.drawRect(
+                        itemView.right.toFloat() + dX,
+                        itemView.top.toFloat(),
+                        itemView.right.toFloat(),
+                        itemView.bottom.toFloat(),
+                        paint
+                    )
+
+                    val icon = ContextCompat.getDrawable(requireContext(),
+                        android.R.drawable.ic_menu_delete)
+                    icon?.let {
+                        val iconMargin = (itemView.height - it.intrinsicHeight) / 2
+                        val iconTop = itemView.top + iconMargin
+                        val iconBottom = iconTop + it.intrinsicHeight
+                        val iconLeft = itemView.right - iconMargin - it.intrinsicWidth
+                        val iconRight = itemView.right - iconMargin
+                        it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                        it.draw(c)
+                    }
+                }
+
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+            }
+
+            override fun onMove(rv: RecyclerView, vh: RecyclerView.ViewHolder, t: RecyclerView.ViewHolder) = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val request = adapter.currentList[position]
+
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Delete Request")
+                    .setMessage("Are you sure?")
+                    .setPositiveButton("Delete") { _, _ -> viewModel.deleteRequest(request.id) }
+                    .setNegativeButton("Cancel") { _, _ -> adapter.notifyItemChanged(position) }
+                    .show()
+            }
+        }
+        ItemTouchHelper(swipeHandler).attachToRecyclerView(binding.rvRequests)
+
+        binding.rvRequests.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
 
-                val layoutManager =
-                    recyclerView.layoutManager as LinearLayoutManager
+                val layoutManager = binding.rvRequests.layoutManager as LinearLayoutManager
+                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+                val totalItems = adapter.itemCount
 
-                val totalItems = layoutManager.itemCount
-                val lastVisible = layoutManager.findLastVisibleItemPosition()
-
-                if (lastVisible >= totalItems - 3) {
-
-                    if (isAdmin) {
-                        adminViewModel.loadNextPage()
-                    } else {
-                        studentViewModel.loadNextPage()
-                    }
+                if (!viewModel.uiState.value.isLoading &&
+                    viewModel.uiState.value.hasMorePages &&
+                    lastVisibleItem >= totalItems - 3) {
+                    viewModel.fetchRequests()
                 }
             }
         })
+    }
+
+    private fun setupObservers() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    binding.swipeRefresh.isRefreshing = state.isLoading
+                    adapter.submitList(state.maintenanceRequests)
+
+                    val isEmpty = state.maintenanceRequests.isEmpty() && !state.isLoading
+                    binding.llEmptyState.visibility = if (isEmpty) View.VISIBLE else View.GONE
+                    binding.rvRequests.visibility = if (isEmpty) View.GONE else View.VISIBLE
+
+                    state.errorMessage?.let {
+                        Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                        viewModel.resetMessages()
+                    }
+
+                    state.successMessage?.let {
+                        Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                        viewModel.resetMessages()
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.fetchRequests()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

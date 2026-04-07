@@ -33,9 +33,32 @@
 
     <!-- Feature fragments -->
     <fragment
-        android:id="@+id/maintenanceFragment"
+        android:id="@+id/maintenanceListFragment"
         android:name="com.gbc.dormio_mobile_app.ui.maintenance.MaintenanceListFragment"
-        android:label="Maintenance" />
+        android:label="Maintenance">
+
+        <action
+            android:id="@+id/action_maintenanceListFragment_to_createMaintenanceFragment"
+            app:destination="@id/createMaintenanceFragment" />
+
+        <action
+            android:id="@+id/action_maintenanceListFragment_to_maintenanceDetailFragment"
+            app:destination="@id/maintenanceDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/createMaintenanceFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.maintenance.CreateMaintenanceFragment"
+        android:label="Create Request" />
+
+    <fragment
+        android:id="@+id/maintenanceDetailFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.maintenance.MaintenanceDetailFragment"
+        android:label="Request Details">
+        <argument
+            android:name="requestId"
+            app:argType="integer" />
+    </fragment>
 
     <fragment
         android:id="@+id/mealsFragment"
