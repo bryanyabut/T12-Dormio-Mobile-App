@@ -6,6 +6,5 @@ data class MaintenanceQuery(
     val urgency: String? = null,
     val page: Int = 1,
     val limit: Int = 20,
-    val sort: String = "createdAt",
-    val order: String = "desc"
+    val sort: String = "createdAt:desc",
 )

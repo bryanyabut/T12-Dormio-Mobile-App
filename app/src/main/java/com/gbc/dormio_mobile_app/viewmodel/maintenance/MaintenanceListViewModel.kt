@@ -46,10 +46,13 @@ class MaintenanceListViewModel @Inject constructor(
 
         viewModelScope.launch {
             val currentState = _uiState.value
+
             val query = MaintenanceQuery(
+                search = currentState.searchQuery,
                 status = currentState.filterStatus,
                 urgency = currentState.filterUrgency,
-                page = currentState.currentPage
+                page = currentState.currentPage,
+                sort = currentState.sortBy ?: "createdAt:desc"
             )
 
             val result = if (currentState.userRole == UserRole.ADMIN.value) {
@@ -63,7 +66,11 @@ class MaintenanceListViewModel @Inject constructor(
                     val response = result.data
                     _uiState.update { it.copy(
                         isLoading = false,
-                        maintenanceRequests = currentState.maintenanceRequests + response.data,
+                        maintenanceRequests = if (response.page == 1) {
+                            response.data
+                        } else {
+                            currentState.maintenanceRequests + response.data
+                        },
                         currentPage = response.page + 1,
                         hasMorePages = response.page < response.totalPages
                     )}
@@ -81,8 +88,42 @@ class MaintenanceListViewModel @Inject constructor(
         }
     }
 
+    fun onSearchQueryChanged(query: String?) {
+        _uiState.update { it.copy(searchQuery = query) }
+        fetchRequests(isRefresh = true)
+    }
+
+    fun onSortChanged(sortValue: String) {
+        _uiState.update { it.copy(sortBy = sortValue) }
+        fetchRequests(isRefresh = true)
+    }
+
     fun updateFilters(status: String?, urgency: String?) {
         _uiState.update { it.copy(filterStatus = status, filterUrgency = urgency) }
         fetchRequests(isRefresh = true)
+    }
+
+    fun resetMessages() {
+        _uiState.update { it.copy(errorMessage = null, successMessage = null) }
+    }
+
+    fun deleteRequest(requestId: Int) {
+        _uiState.update { it.copy(isLoading = true) }
+        viewModelScope.launch {
+            val result = repository.deleteRequest(requestId)
+            when (result) {
+                is NetworkResult.Success -> {
+                    _uiState.update { it.copy(
+                        isLoading = false,
+                        successMessage = "Request deleted successfully"
+                    )}
+                    fetchRequests(isRefresh = true)
+                }
+                is NetworkResult.Error -> {
+                    _uiState.update { it.copy(isLoading = false, errorMessage = result.apiError.message) }
+                }
+                else -> {}
+            }
+        }
     }
 }

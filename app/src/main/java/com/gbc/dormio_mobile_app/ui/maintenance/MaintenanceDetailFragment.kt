@@ -1,5 +1,6 @@
 package com.gbc.dormio_mobile_app.ui.maintenance
 
+import android.R.id.message
 import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -11,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.gbc.dormio_mobile_app.R
 import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceRequestDto
@@ -78,16 +80,22 @@ class MaintenanceDetailFragment : Fragment(R.layout.fragment_maintenance_detail)
             viewModel.formState.collect { state ->
                 binding.progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
 
-                state.successMessage?.let {
-                    Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                    toggleEditMode(false)
-                    viewModel.getRequestDetail(args.requestId)
+                state.successMessage?.let { message ->
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+
+                    if (message.contains("deleted", ignoreCase = true)) {
+                        findNavController().popBackStack()
+                    } else {
+                        toggleEditMode(false)
+                        viewModel.getRequestDetail(args.requestId)
+                    }
 
                     viewModel.resetFormState()
                 }
 
-                state.errorMessage?.let {
-                    Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                state.errorMessage?.let { error ->
+                    Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
+                    viewModel.resetFormState()
                 }
             }
         }
@@ -121,6 +129,17 @@ class MaintenanceDetailFragment : Fragment(R.layout.fragment_maintenance_detail)
                 )
             }
         }
+
+        binding.btnDelete.setOnClickListener {
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Delete Request")
+                .setMessage("Are you sure you want to delete this request?")
+                .setPositiveButton("Delete") { _, _ ->
+                    viewModel.deleteRequest(args.requestId)
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
     }
 
     private fun populateFields(request: MaintenanceRequestDto) {
@@ -143,6 +162,14 @@ class MaintenanceDetailFragment : Fragment(R.layout.fragment_maintenance_detail)
         val role = viewModel.formState.value.userRole ?: "STUDENT"
 
         binding.fabEdit.visibility = if (role == "ADMIN") {
+            View.VISIBLE
+        } else if (request.status == RequestStatus.PENDING) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+
+        binding.btnDelete.visibility = if (role == "ADMIN") {
             View.VISIBLE
         } else if (request.status == RequestStatus.PENDING) {
             View.VISIBLE

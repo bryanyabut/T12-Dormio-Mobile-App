@@ -29,6 +29,51 @@
             android:textStyle="bold" />
     </LinearLayout>
 
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cvControls"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="-28dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/maintenanceHeader">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="4dp">
+
+            <SearchView
+                android:id="@+id/searchView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:iconifiedByDefault="false"
+                android:queryHint="Search requests..."
+                android:theme="@style/ThemeOverlay.MaterialComponents.Light" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="24dp"
+                android:background="#DDDDDD"
+                android:layout_marginHorizontal="4dp"/>
+
+            <ImageButton
+                android:id="@+id/btnSort"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Sort"
+                android:src="@drawable/ic_list"
+                app:tint="@color/primary_blue" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"
         android:layout_width="0dp"
@@ -37,7 +82,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/maintenanceHeader">
+        app:layout_constraintTop_toBottomOf="@id/cvControls">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvRequests"
@@ -86,6 +131,8 @@
         android:contentDescription="Create Request"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        app:srcCompat="@android:drawable/ic_input_add"
+        app:backgroundTint="@color/primary_blue"
+        app:tint="@color/white"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

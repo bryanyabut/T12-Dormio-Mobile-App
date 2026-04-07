@@ -51,11 +51,14 @@ data class MaintenanceAllReqUiState(
     val isLoading: Boolean = false,
     val userRole: String = UserRole.STUDENT.value,
     val errorMessage: String? = null,
+    val successMessage: String? = null,
     val maintenanceRequests: List<MaintenanceRequestDto> = emptyList(),
     val filterStatus: String? = null,
     val filterUrgency: String? = null,
     val currentPage: Int = 1,
-    val hasMorePages: Boolean = true
+    val hasMorePages: Boolean = true,
+    val searchQuery: String? = null,
+    val sortBy: String? = "createdAt:desc"
 )
 
 data class MaintenanceDetailUiState(

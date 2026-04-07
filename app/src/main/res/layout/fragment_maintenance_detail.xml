@@ -188,9 +188,23 @@
                 android:layout_gravity="center"
                 android:visibility="gone" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDelete"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Delete Request"
+                android:textColor="@color/design_default_color_error"
+                app:icon="@drawable/ic_delete"
+                app:iconTint="@color/design_default_color_error"
+                app:backgroundTint="#1FFF0000" />
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
     </LinearLayout>
+
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabEdit"
         android:layout_width="wrap_content"

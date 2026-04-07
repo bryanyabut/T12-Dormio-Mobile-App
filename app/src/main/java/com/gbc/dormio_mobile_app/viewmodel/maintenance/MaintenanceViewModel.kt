@@ -162,4 +162,26 @@ class MaintenanceViewModel @Inject constructor(
             }
         }
     }
+
+    fun deleteRequest(requestId: Int) {
+        _formState.update { it.copy(isLoading = true) }
+        viewModelScope.launch {
+            val result = repository.deleteRequest(requestId)
+            when (result) {
+                is NetworkResult.Success -> {
+                    _formState.update { it.copy(
+                        isLoading = false,
+                        successMessage = "Request deleted successfully"
+                    )}
+                }
+                is NetworkResult.Error -> {
+                    _formState.update { it.copy(
+                        isLoading = false,
+                        errorMessage = result.apiError.message
+                    )}
+                }
+                else -> {}
+            }
+        }
+    }
 }

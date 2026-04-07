@@ -51,8 +51,7 @@ class MaintenanceRepository @Inject constructor(
                 urgency = query.urgency,
                 page = query.page,
                 limit = query.limit,
-                sortBy = query.sort,
-                sortOrder = query.order
+                sortBy = query.sort
             )
         }
     }
@@ -91,8 +90,7 @@ class MaintenanceRepository @Inject constructor(
                 urgency = query.urgency,
                 page = query.page,
                 limit = query.limit,
-                sortBy = query.sort,
-                sortOrder = query.order
+                sortBy = query.sort
             )
         }
     }
