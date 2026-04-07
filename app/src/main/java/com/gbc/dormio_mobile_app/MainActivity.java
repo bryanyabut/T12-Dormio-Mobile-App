@@ -6,6 +6,7 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.NavOptions;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -31,14 +32,29 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
         NavigationUI.setupWithNavController(bottomNav, navController);
 
+        bottomNav.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            NavOptions navOptions = new NavOptions.Builder()
+                    .setPopUpTo(R.id.homeFragment, false)
+                    .setLaunchSingleTop(true)
+                    .build();
+
+            if (itemId == R.id.homeFragment) {
+                navController.popBackStack(R.id.homeFragment, false);
+            } else {
+                navController.navigate(itemId, null, navOptions);
+            }
+            return true;
+        });
+
         Set<Integer> topLevelDestinations = new HashSet<>(Arrays.asList(
                 R.id.homeFragment,
                 R.id.notificationsFragment,
+                R.id.scheduleFragment,
                 R.id.accountSettingsFragment,
                 R.id.choresFragment,
                 R.id.mealsFragment,
-                R.id.budgetFragment,
-                R.id.mealsFragment
+                R.id.budgetFragment
         ));
 
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
