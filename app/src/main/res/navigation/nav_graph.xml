@@ -16,6 +16,11 @@
         android:label="Alerts" />
 
     <fragment
+        android:id="@+id/scheduleFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.schedule.ScheduleFragment"
+        android:label="Schedule" />
+
+    <fragment
         android:id="@+id/accountSettingsFragment"
         android:name="com.gbc.dormio_mobile_app.ui.account.AccountSettingsFragment"
         android:label="Profile" >

@@ -12,6 +12,11 @@
         android:title="Alerts" />
 
     <item
+        android:id="@+id/scheduleFragment"
+        android:icon="@drawable/outline_calendar_month_24"
+        android:title="Schedule" />
+
+    <item
         android:id="@+id/accountSettingsFragment"
         android:icon="@drawable/outline_account_circle_24"
         android:title="Profile" />
