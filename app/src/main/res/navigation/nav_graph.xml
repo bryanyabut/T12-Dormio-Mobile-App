@@ -18,7 +18,17 @@
     <fragment
         android:id="@+id/scheduleFragment"
         android:name="com.gbc.dormio_mobile_app.ui.schedule.ScheduleFragment"
-        android:label="Schedule" />
+        android:label="Schedule">
+
+        <action
+            android:id="@+id/action_scheduleFragment_to_createEventFragment"
+            app:destination="@id/createEventFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/createEventFragment"
+        android:name="com.gbc.dormio_mobile_app.ui.schedule.CreateEventFragment"
+        android:label="New Event" />
 
     <fragment
         android:id="@+id/accountSettingsFragment"
