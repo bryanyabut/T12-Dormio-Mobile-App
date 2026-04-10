@@ -9,9 +9,11 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gbc.dormio_mobile_app.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -80,6 +82,10 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
         btnNext.setOnClickListener {
             displayedCalendar.add(Calendar.MONTH, 1)
             renderCalendar()
+        }
+
+        view.findViewById<FloatingActionButton>(R.id.fabAddEvent).setOnClickListener {
+            findNavController().navigate(R.id.action_scheduleFragment_to_createEventFragment)
         }
 
         renderCalendar()
