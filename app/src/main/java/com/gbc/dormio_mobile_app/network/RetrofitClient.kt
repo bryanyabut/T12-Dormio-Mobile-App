@@ -39,7 +39,7 @@ object NetworkModule {
         return Interceptor { chain ->
             val token = TokenManager.getToken(context)
             val requestBuilder = chain.request().newBuilder()
-            if (token != null) {
+            if (token != null && !TokenManager.isTokenExpired(context)) {
                 requestBuilder.header("Authorization", "Bearer $token")
             }
             chain.proceed(requestBuilder.build())
@@ -50,11 +50,21 @@ object NetworkModule {
     @Singleton
     fun provideOkHttpClient(
         loggingInterceptor: HttpLoggingInterceptor,
-        authInterceptor: Interceptor
+        authInterceptor: Interceptor,
+        @ApplicationContext context: Context
     ): OkHttpClient {
+        val authResponseInterceptor = Interceptor { chain ->
+            val response = chain.proceed(chain.request())
+            if (response.code == 401 || response.code == 403) {
+                TokenManager.notifySessionExpired(context)
+            }
+            response
+        }
+
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
             .addInterceptor(authInterceptor)
+            .addInterceptor(authResponseInterceptor)
             .connectTimeout(Constants.CONNECT_TIMEOUT, TimeUnit.SECONDS)
             .readTimeout(Constants.READ_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(Constants.WRITE_TIMEOUT, TimeUnit.SECONDS)
