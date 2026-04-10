@@ -25,9 +25,13 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (TokenManager.getToken(this) != null) {
-            navigateToMain()
-            return
+        val token = TokenManager.getToken(this)
+        if (token != null) {
+            if (!TokenManager.isTokenExpired(this)) {
+                navigateToMain()
+                return
+            }
+            TokenManager.clearToken(this)
         }
 
         setContentView(R.layout.activity_login)
