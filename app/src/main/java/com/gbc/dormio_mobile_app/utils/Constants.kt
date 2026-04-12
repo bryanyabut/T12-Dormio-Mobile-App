@@ -43,5 +43,8 @@ object Constants {
     const val API_PROFILE_AVATAR = "profile/avatar"
     const val KEY_PROFILE_IMAGE = "profileImage"
 
+    //CHORES ENDPOINTS
+    const val API_CHORES_DASHBOARD = "chores/dashboard"
+
 
 }
