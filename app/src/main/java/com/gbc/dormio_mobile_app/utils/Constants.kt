@@ -47,6 +47,7 @@ object Constants {
     const val API_CHORES_DASHBOARD = "chores/dashboard"
     const val API_CHORES_CREATE = "chores"
     const val API_CHORES_HOUSEMATES = "chores/housemates"
+    const val API_CHORES_COMPLETE = "chores/{id}/complete"
 
 
 }

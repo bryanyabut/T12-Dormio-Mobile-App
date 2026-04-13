@@ -9,7 +9,9 @@ import com.gbc.dormio_mobile_app.utils.Constants
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface ChoresApiService {
 
@@ -23,4 +25,9 @@ interface ChoresApiService {
     suspend fun createChore(
         @Body request: AddChoreRequest
     ) : Response<ApiResponse<Chore>>
+
+    @PATCH(Constants.API_CHORES_COMPLETE)
+    suspend fun markChoreComplete(
+        @Path("id") choreId: Int
+    ): Response<ApiResponse<Chore>>
 }

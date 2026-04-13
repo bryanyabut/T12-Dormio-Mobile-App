@@ -49,6 +49,14 @@ data class Housemate(
     val isCurrentUser: Boolean = false
 )
 
+data class ChoresDashboardUiState(
+    val isLoading: Boolean = false,
+    val actionLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val successMessage: String? = null,
+    val data: DashboardData? = null
+)
+
 data class ChoreFormUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,

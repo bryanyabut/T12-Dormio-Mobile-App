@@ -29,4 +29,9 @@ class ChoresRepository @Inject constructor(
         return handleApiResponse(networkResult)
     }
 
+    suspend fun markChoreComplete(choreId: Int): NetworkResult<Chore> {
+        val networkResult = safeApiCall { apiService.markChoreComplete(choreId) }
+        return handleApiResponse(networkResult)
+    }
+
 }

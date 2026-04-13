@@ -40,7 +40,13 @@ class ChoresFragment : Fragment(R.layout.fragment_chores) {
 
     private fun setupAdapter() {
         choreAdapter = ChoreDashboardAdapter(
-            onCompleteClick = { findNavController().navigate(R.id.action_choresFragment_to_choreCompleteFragment) },
+            onCompleteClick = { chore ->
+                val bundle = bundleOf(
+                "choreId" to chore.id,
+                "choreTitle" to chore.name,
+            )
+                findNavController().navigate(R.id.action_choresFragment_to_choreCompleteFragment, bundle)
+                              },
             onEditClick = { chore ->
                 findNavController().navigate(
                     R.id.action_choresFragment_to_addChoreFragment,
@@ -63,28 +69,27 @@ class ChoresFragment : Fragment(R.layout.fragment_chores) {
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.dashboardState.collect { result ->
-                    binding.progressBar.visibility =
-                        if (result is NetworkResult.Loading) View.VISIBLE else View.GONE
+                viewModel.dashboardState.collect { state ->
+                    binding.progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
 
-                    when (result) {
-                        is NetworkResult.Success -> {
-                            val data = result.data
-                            binding.tvGreeting.text = data.greeting
-                            binding.tvChoresLeftCount.text = "${data.stats.choresLeft} chores Left"
-                            binding.btnProgress.text = "Progress  •  ${data.stats.progressMessage}"
+                    state.data?.let { data ->
+                        binding.tvGreeting.text = data.greeting
+                        binding.tvChoresLeftCount.text = "${data.stats.choresLeft} chores Left"
+                        binding.btnProgress.text = "Progress  •  ${data.stats.progressMessage}"
 
-                            choreAdapter.submitList(data.todayChores)
-                        }
+                        binding.progressBar.progress = data.stats.percentComplete.toInt()
 
-                        is NetworkResult.Error -> {
-                            val errorMessage =
-                                result.apiError.message ?: "An unknown error occurred"
-                            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT)
-                                .show()
-                        }
+                        choreAdapter.submitList(data.todayChores)
+                    }
 
-                        else -> {}
+                    state.errorMessage?.let { message ->
+                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                        viewModel.clearMessages()
+                    }
+
+                    state.successMessage?.let { message ->
+                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                        viewModel.clearMessages()
                     }
                 }
             }
