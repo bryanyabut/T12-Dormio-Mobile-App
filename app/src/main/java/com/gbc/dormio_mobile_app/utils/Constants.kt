@@ -43,5 +43,8 @@ object Constants {
     const val API_PROFILE_AVATAR = "profile/avatar"
     const val KEY_PROFILE_IMAGE = "profileImage"
 
+    //SCHEDULE / CALENDAR ENDPOINTS
+    const val API_CALENDAR = "calendar"
+    const val API_CALENDAR_DETAIL = "calendar/{id}"
 
 }
