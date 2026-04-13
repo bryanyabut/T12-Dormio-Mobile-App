@@ -35,4 +35,8 @@ class ChoresDashboardViewModel @Inject constructor(
             _dashboardState.value = result
         }
     }
+
+    fun refreshDashboard() {
+        getDashboard()
+    }
 }

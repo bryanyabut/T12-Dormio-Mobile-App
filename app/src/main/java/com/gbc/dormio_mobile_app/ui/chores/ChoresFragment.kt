@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 class ChoresFragment : Fragment(R.layout.fragment_chores) {
 
     private val viewModel: ChoresDashboardViewModel by viewModels()
-    private lateinit var choreAdapter: ChoreAdapter
+    private lateinit var choreAdapter: ChoreDashboardAdapter
 
     private var _binding: FragmentChoresBinding? = null
     private val binding get() = _binding!!
@@ -39,7 +39,7 @@ class ChoresFragment : Fragment(R.layout.fragment_chores) {
     }
 
     private fun setupAdapter() {
-        choreAdapter = ChoreAdapter(
+        choreAdapter = ChoreDashboardAdapter(
             onCompleteClick = { findNavController().navigate(R.id.action_choresFragment_to_choreCompleteFragment) },
             onEditClick = { chore ->
                 findNavController().navigate(
@@ -89,6 +89,11 @@ class ChoresFragment : Fragment(R.layout.fragment_chores) {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.refreshDashboard()
     }
 
     override fun onDestroyView() {

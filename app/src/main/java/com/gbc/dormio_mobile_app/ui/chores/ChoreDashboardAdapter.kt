@@ -13,10 +13,10 @@ import com.gbc.dormio_mobile_app.data.model.chores.AssignedUser
 import com.gbc.dormio_mobile_app.data.model.chores.Chore
 import com.gbc.dormio_mobile_app.databinding.ItemChoreDashboardBinding
 
-class ChoreAdapter(
+class ChoreDashboardAdapter(
     private val onCompleteClick: (Chore) -> Unit,
     private val onEditClick: (Chore) -> Unit
-) : ListAdapter<Chore, ChoreAdapter.ChoreViewHolder>(ChoreDiffCallback()) {
+) : ListAdapter<Chore, ChoreDashboardAdapter.ChoreViewHolder>(ChoreDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChoreViewHolder {
         val binding = ItemChoreDashboardBinding.inflate(
@@ -40,15 +40,15 @@ class ChoreAdapter(
 
             when {
                 chore.isOverdue && chore.status != "COMPLETED" -> {
-                    binding.tvChoreDueDate.text = "Overdue: ${formattedDate}"
+                    binding.tvChoreDueDate.text = "Overdue: $formattedDate"
                     binding.tvChoreDueDate.setTextColor(ContextCompat.getColor(itemView.context, R.color.feature_red))
                 }
                 chore.isDueToday -> {
-                    binding.tvChoreDueDate.text = chore.dueDate
+                    binding.tvChoreDueDate.text = "Today: $formattedDate"
                     binding.tvChoreDueDate.setTextColor(ContextCompat.getColor(itemView.context, R.color.feature_red))
                 }
                 else -> {
-                    binding.tvChoreDueDate.text = chore.dueDate
+                    binding.tvChoreDueDate.text = formattedDate
                     binding.tvChoreDueDate.setTextColor(ContextCompat.getColor(itemView.context, android.R.color.darker_gray))
                 }
             }
