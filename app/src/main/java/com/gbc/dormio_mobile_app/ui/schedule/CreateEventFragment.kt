@@ -13,12 +13,22 @@ import android.widget.Toast
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.gbc.dormio_mobile_app.R
+import com.gbc.dormio_mobile_app.viewmodel.schedule.ScheduleViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.TimeZone
 
+@AndroidEntryPoint
 class CreateEventFragment : Fragment(R.layout.fragment_create_event) {
+
+    private val viewModel: ScheduleViewModel by activityViewModels()
 
     private var selectedCategory: EventCategory = EventCategory.WORK
     private val calendar = Calendar.getInstance()
@@ -108,14 +118,45 @@ class CreateEventFragment : Fragment(R.layout.fragment_create_event) {
             tvRecurrenceLabel.text = if (isChecked) "Repeats weekly" else "Does not repeat"
         }
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.uiState.collectLatest { state ->
+                btnSaveEvent.isEnabled = !state.isLoading
+                if (state.successMessage != null) {
+                    viewModel.clearMessages()
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                }
+                if (state.errorMessage != null) {
+                    Toast.makeText(requireContext(), state.errorMessage, Toast.LENGTH_SHORT).show()
+                    viewModel.clearMessages()
+                }
+            }
+        }
+
         btnSaveEvent.setOnClickListener {
             val title = etEventTitle.text.toString().trim()
             if (title.isEmpty()) {
                 Toast.makeText(requireContext(), "Please enter an event title", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            Toast.makeText(requireContext(), "Event saved!", Toast.LENGTH_SHORT).show()
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+
+            val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+            isoFormat.timeZone = TimeZone.getTimeZone("UTC")
+
+            val endCalendar = calendar.clone() as Calendar
+            endCalendar.add(Calendar.HOUR_OF_DAY, 1)
+
+            val type = when (selectedCategory) {
+                EventCategory.WORK -> "WORK"
+                EventCategory.CLASS -> "CLASS"
+                EventCategory.PERSONAL -> "PERSONAL"
+            }
+
+            viewModel.createSchedule(
+                title = title,
+                type = type,
+                startTime = isoFormat.format(calendar.time),
+                endTime = isoFormat.format(endCalendar.time)
+            )
         }
     }
 }

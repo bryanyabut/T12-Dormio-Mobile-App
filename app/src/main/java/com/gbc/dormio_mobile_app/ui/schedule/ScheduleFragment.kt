@@ -7,17 +7,27 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gbc.dormio_mobile_app.R
+import com.gbc.dormio_mobile_app.data.model.schedule.ScheduleDto
+import com.gbc.dormio_mobile_app.viewmodel.schedule.ScheduleViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.TimeZone
 
+@AndroidEntryPoint
 class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
 
     private lateinit var tvMonthYear: TextView
@@ -26,38 +36,14 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
     private lateinit var rvEvents: RecyclerView
     private lateinit var eventAdapter: ScheduleEventAdapter
 
+    private val viewModel: ScheduleViewModel by activityViewModels()
+
     private val displayedCalendar = Calendar.getInstance()
     private var selectedDay: Int = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
     private var selectedMonth: Int = Calendar.getInstance().get(Calendar.MONTH)
     private var selectedYear: Int = Calendar.getInstance().get(Calendar.YEAR)
 
-    private val sampleEvents: Map<String, List<ScheduleEvent>> = mapOf(
-        "2026-04-01" to listOf(
-            ScheduleEvent("Morning Jog", "7:00 AM", "7:45 AM", EventCategory.PERSONAL, recurrence = "Daily", timeLabel = "7:00 AM"),
-            ScheduleEvent("COMP 3032 Lecture", "9:00 AM", "10:30 AM", EventCategory.CLASS, detail = "COMP3011 · Rm 204", recurrence = "MWF", timeLabel = "9:00 AM"),
-            ScheduleEvent("Part-time Shift", "2:00 PM", "6:00 PM", EventCategory.WORK, detail = "Campus Bookstore", timeLabel = "2:00 PM")
-        ),
-        "2026-04-02" to listOf(
-            ScheduleEvent("Team Meeting", "10:00 AM", "11:00 AM", EventCategory.WORK, detail = "Conference Room B", timeLabel = "10:00 AM")
-        ),
-        "2026-04-03" to listOf(
-            ScheduleEvent("Study Group", "3:00 PM", "5:00 PM", EventCategory.CLASS, detail = "Library 2nd Floor", timeLabel = "3:00 PM"),
-            ScheduleEvent("Yoga Session", "6:00 PM", "7:00 PM", EventCategory.PERSONAL, timeLabel = "6:00 PM")
-        ),
-        "2026-04-07" to listOf(
-            ScheduleEvent("COMP 3033 Lecture", "9:00 AM", "10:30 AM", EventCategory.CLASS, detail = "COMP3011 · Rm 204", recurrence = "MWF", timeLabel = "9:00 AM")
-        ),
-        "2026-04-08" to listOf(
-            ScheduleEvent("Morning Jog", "7:00 AM", "7:45 AM", EventCategory.PERSONAL, recurrence = "Daily", timeLabel = "7:00 AM"),
-            ScheduleEvent("Part-time Shift", "2:00 PM", "6:00 PM", EventCategory.WORK, detail = "Campus Bookstore", timeLabel = "2:00 PM")
-        ),
-        "2026-04-14" to listOf(
-            ScheduleEvent("COMP 3034 Lecture", "9:00 AM", "10:30 AM", EventCategory.CLASS, detail = "COMP3011 · Rm 204", recurrence = "MWF", timeLabel = "9:00 AM")
-        ),
-        "2026-04-15" to listOf(
-            ScheduleEvent("Dentist Appointment", "11:00 AM", "12:00 PM", EventCategory.PERSONAL, detail = "Dr. Smith Clinic", timeLabel = "11:00 AM")
-        )
-    )
+    private var liveEvents: Map<String, List<ScheduleEvent>> = emptyMap()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -88,9 +74,20 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
             findNavController().navigate(R.id.action_scheduleFragment_to_createEventFragment)
         }
 
-        renderCalendar()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.uiState.collectLatest { state ->
+                if (state.errorMessage != null) {
+                    Toast.makeText(requireContext(), state.errorMessage, Toast.LENGTH_SHORT).show()
+                    viewModel.clearMessages()
+                }
+                liveEvents = groupSchedulesByDate(state.schedules)
+                renderCalendar()
+                loadEventsForSelectedDate()
+            }
+        }
+
+        viewModel.fetchSchedules()
         updateSelectedDateLabel()
-        loadEventsForSelectedDate()
     }
 
     private fun renderCalendar() {
@@ -211,8 +208,8 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
                 cellLayout.addView(dayTextView)
 
                 val dateKey = String.format("%04d-%02d-%02d", currentYear, currentMonth + 1, dayText)
-                if (isCurrentMonth && sampleEvents.containsKey(dateKey)) {
-                    val events = sampleEvents[dateKey]!!
+                if (isCurrentMonth && liveEvents.containsKey(dateKey)) {
+                    val events = liveEvents[dateKey]!!
                     val dotsLayout = LinearLayout(requireContext()).apply {
                         layoutParams = LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -259,8 +256,47 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
 
     private fun loadEventsForSelectedDate() {
         val dateKey = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
-        val events = sampleEvents[dateKey] ?: emptyList()
+        val events = liveEvents[dateKey] ?: emptyList()
         eventAdapter.updateEvents(events)
+    }
+
+    private fun groupSchedulesByDate(schedules: List<ScheduleDto>): Map<String, List<ScheduleEvent>> {
+        val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+        isoFormat.timeZone = TimeZone.getTimeZone("UTC")
+        val dateKeyFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        dateKeyFormat.timeZone = TimeZone.getTimeZone("UTC")
+        return schedules
+            .groupBy { dto ->
+                try {
+                    val date = isoFormat.parse(dto.startTime.substringBefore('.'))
+                    date?.let { dateKeyFormat.format(it) } ?: ""
+                } catch (e: Exception) { "" }
+            }
+            .filter { it.key.isNotEmpty() }
+            .mapValues { (_, dtos) -> dtos.map { it.toScheduleEvent() } }
+    }
+
+    private fun ScheduleDto.toScheduleEvent(): ScheduleEvent {
+        val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+        isoFormat.timeZone = TimeZone.getTimeZone("UTC")
+        val displayFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        val startDate = try { isoFormat.parse(startTime.substringBefore('.')) } catch (e: Exception) { null }
+        val endDate = try { isoFormat.parse(endTime.substringBefore('.')) } catch (e: Exception) { null }
+        val startLabel = startDate?.let { displayFormat.format(it) } ?: startTime
+        val endLabel = endDate?.let { displayFormat.format(it) } ?: endTime
+        val category = when (type) {
+            "WORK" -> EventCategory.WORK
+            "CLASS" -> EventCategory.CLASS
+            else -> EventCategory.PERSONAL
+        }
+        return ScheduleEvent(
+            title = title,
+            startTime = startLabel,
+            endTime = endLabel,
+            category = category,
+            detail = description ?: location,
+            timeLabel = startLabel
+        )
     }
 
     private fun dpToPx(dp: Int): Int {
