@@ -69,4 +69,20 @@ object TokenManager {
             0L
         }
     }
+
+    fun getUserId(context: Context): Int {
+        val token = getToken(context) ?: return -1
+        return try {
+            val parts = token.split(".")
+            if (parts.size != 3) return -1
+
+            val payload = String(Base64.getUrlDecoder().decode(parts[1]))
+            val json = JSONObject(payload)
+
+            json.optInt("userId", -1)
+        } catch (e: Exception) {
+            Log.e("TokenManager", "Error parsing ID from token", e)
+            -1
+        }
+    }
 }

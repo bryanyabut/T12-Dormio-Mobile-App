@@ -43,6 +43,14 @@ object Constants {
     const val API_PROFILE_AVATAR = "profile/avatar"
     const val KEY_PROFILE_IMAGE = "profileImage"
 
+    //CHORES ENDPOINTS
+    const val API_CHORES_DASHBOARD = "chores/dashboard"
+    const val API_CHORES_CREATE = "chores"
+    const val API_CHORES_HOUSEMATES = "chores/housemates"
+    const val API_CHORES_COMPLETE = "chores/{id}/complete"
+    const val API_CHORES_UPDATE = "chores/{id}"
+    const val API_CHORES_BY_ID = "chores/{id}"
+
     //SCHEDULE / CALENDAR ENDPOINTS
     const val API_CALENDAR = "calendar"
     const val API_CALENDAR_DETAIL = "calendar/{id}"

@@ -2,6 +2,7 @@ package com.gbc.dormio_mobile_app.network
 
 import android.content.Context
 import com.gbc.dormio_mobile_app.network.ApiServices.AuthApiService
+import com.gbc.dormio_mobile_app.network.ApiServices.ChoresApiService
 import com.gbc.dormio_mobile_app.network.ApiServices.MaintenanceApiService
 import com.gbc.dormio_mobile_app.network.ApiServices.MealPlanApiService
 import com.gbc.dormio_mobile_app.network.ApiServices.ProfileApiService
@@ -112,12 +113,20 @@ object NetworkModule {
         return retrofit.create(MealPlanApiService::class.java)
     }
 
+    //profile api service provider
     @Provides
     @Singleton
     fun provideProfileApiService(retrofit: Retrofit): ProfileApiService {
         return retrofit.create(ProfileApiService::class.java)
     }
 
+    //chores api service provider
+    @Provides
+    @Singleton
+    fun provideChoresApiService(retrofit: Retrofit): ChoresApiService {
+        return retrofit.create(ChoresApiService::class.java)
+    }
+    
     @Provides
     @Singleton
     fun provideScheduleApiService(retrofit: Retrofit): ScheduleApiService {
