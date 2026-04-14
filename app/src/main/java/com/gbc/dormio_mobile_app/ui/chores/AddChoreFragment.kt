@@ -34,8 +34,11 @@ class AddChoreFragment : Fragment(R.layout.fragment_add_chore) {
         setupDatePicker()
         observeState()
 
+        val choreId = arguments?.getInt("choreId", -1)?.takeIf { it != -1 }
+
         binding.btnSaveChore.setOnClickListener {
-            viewModel.createChore(
+            viewModel.saveChore(
+                choreId = choreId,
                 name = binding.etChoreTitle.text.toString(),
                 description = binding.etChoreNotes.text.toString(),
                 dueDate = selectedDate
@@ -46,10 +49,11 @@ class AddChoreFragment : Fragment(R.layout.fragment_add_chore) {
             findNavController().popBackStack()
         }
 
-        val choreId = arguments?.getInt("choreId", -1) ?: -1
-        if (choreId != -1) {
+        if (choreId != null) {
             binding.tvAddChoreScreenTitle.text = "Edit Chore"
             binding.btnSaveChore.text = "Update Chore"
+
+            viewModel.loadChoreForEditing(choreId)
         }
     }
 
@@ -57,6 +61,12 @@ class AddChoreFragment : Fragment(R.layout.fragment_add_chore) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collect { state ->
                 housemateAdapter.submitList(state.housemates)
+
+                if (state.initialChoreLoaded) {
+                    binding.etChoreTitle.setText(state.choreName)
+                    binding.etChoreNotes.setText(state.description)
+                    viewModel.consumeInitialData()
+                }
 
                 if (state.isSuccess) {
                     Toast.makeText(requireContext(), state.successMessage, Toast.LENGTH_SHORT).show()

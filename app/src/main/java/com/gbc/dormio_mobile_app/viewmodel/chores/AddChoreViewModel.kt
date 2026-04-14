@@ -5,8 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gbc.dormio_mobile_app.data.model.chores.AddChoreRequest
 import com.gbc.dormio_mobile_app.data.model.chores.ChoreFormUiState
+import com.gbc.dormio_mobile_app.data.model.chores.UpdateChoreRequest
 import com.gbc.dormio_mobile_app.data.repository.ChoresRepository
-import com.gbc.dormio_mobile_app.network.TokenManager // Import your TokenManager
+import com.gbc.dormio_mobile_app.network.TokenManager
 import com.gbc.dormio_mobile_app.utils.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -30,24 +31,114 @@ class AddChoreViewModel @Inject constructor(
         fetchHousemates()
     }
 
+    fun loadChoreForEditing(choreId: Int) {
+        _uiState.update { it.copy(
+            isLoading = true,
+            isEditMode = true) }
+
+        viewModelScope.launch {
+            when (val result = repository.getChoreById(choreId)) {
+                is NetworkResult.Success -> {
+                    val chore = result.data
+                    _uiState.update { currentState ->
+                        val updatedHousemates = currentState.housemates.map { housemate ->
+                            housemate.copy(isSelected = chore?.assignedUsers?.any { it.id == housemate.id } == true)
+                        }
+
+                        currentState.copy(
+                            isLoading = false,
+                            choreName = chore?.name ?: "",
+                            description = chore?.description ?: "",
+                            selectedDate = chore?.dueDate ?: "",
+                            assignedUserIds = chore?.assignedUsers?.map { it.id } ?: emptyList(),
+                            housemates = updatedHousemates,
+                            initialChoreLoaded = true
+                        )
+                    }
+                }
+                is NetworkResult.Error -> {
+                    _uiState.update { it.copy(
+                        isLoading = false,
+                        errorMessage = result.apiError.message
+                    )}
+                }
+                else -> {}
+            }
+        }
+    }
+
+    fun saveChore(
+        choreId: Int? = null,
+        name: String,
+        description: String?,
+        dueDate: String
+    ) {
+        val assignedIds = _uiState.value.assignedUserIds
+
+        if (name.isBlank() || assignedIds.isEmpty()) {
+            _uiState.update { it.copy(errorMessage = "Name and at least one assignee required") }
+            return
+        }
+
+        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+
+        viewModelScope.launch {
+            val result = if (choreId == null) {
+                // CREATE
+                repository.createChore(
+                    AddChoreRequest(
+                        name, description, dueDate, assignedIds))
+            } else {
+                // UPDATE
+                repository.updateChore(choreId,
+                    UpdateChoreRequest(
+                        name, description, dueDate, assignedIds)
+                )
+            }
+
+            when (result) {
+                is NetworkResult.Success -> {
+                    _uiState.update { it.copy(
+                        isLoading = false,
+                        isSuccess = true,
+                        successMessage = if (choreId == null) "Chore created!" else "Chore updated!"
+                    )}
+                }
+                is NetworkResult.Error -> {
+                    _uiState.update { it.copy(
+                        isLoading = false,
+                        errorMessage = result.apiError.message
+                    )}
+                }
+                else -> {}
+            }
+        }
+    }
+
+    fun consumeInitialData() {
+        _uiState.update { it.copy(initialChoreLoaded = false) }
+    }
+
     private fun fetchHousemates() {
         val currentUserId = TokenManager.getUserId(context)
-
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
         viewModelScope.launch {
             when (val result = repository.getHousemates()) {
                 is NetworkResult.Success -> {
-                    val processedHousemates = result.data?.map { housemate ->
-                        housemate.copy(
-                            isCurrentUser = housemate.id == currentUserId
-                        )
-                    } ?: emptyList()
+                    _uiState.update { currentState ->
+                        val processedHousemates = result.data?.map { housemate ->
+                            housemate.copy(
+                                isCurrentUser = housemate.id == currentUserId,
+                                isSelected = currentState.assignedUserIds.contains(housemate.id)
+                            )
+                        } ?: emptyList()
 
-                    _uiState.update { it.copy(
-                        isLoading = false,
-                        housemates = processedHousemates
-                    )}
+                        currentState.copy(
+                            isLoading = false,
+                            housemates = processedHousemates
+                        )
+                    }
                 }
                 is NetworkResult.Error -> {
                     _uiState.update { it.copy(
@@ -61,7 +152,6 @@ class AddChoreViewModel @Inject constructor(
             }
         }
     }
-
     fun toggleUserSelection(userId: Int) {
         _uiState.update { currentState ->
             val updatedHousemates = currentState.housemates.map { housemate ->
@@ -81,46 +171,46 @@ class AddChoreViewModel @Inject constructor(
         }
     }
 
-    fun createChore(
-        name: String,
-        description: String?,
-        dueDate: String
-    ) {
-        val assignedIds = _uiState.value.assignedUserIds
-
-        if (name.isBlank() || assignedIds.isEmpty()) {
-            _uiState.update { it.copy(errorMessage = "Name and at least one assignee required") }
-            return
-        }
-
-        _uiState.update { it.copy(
-            isLoading = true,
-            errorMessage = null,
-            successMessage = null,
-            isSuccess = false
-        )}
-
-        viewModelScope.launch {
-            val request = AddChoreRequest(name, description, dueDate, assignedIds)
-
-            when (val result = repository.createChore(request)) {
-                is NetworkResult.Success -> {
-                    _uiState.update { it.copy(
-                        isLoading = false,
-                        isSuccess = true,
-                        successMessage = "Chore created successfully!"
-                    )}
-                }
-                is NetworkResult.Error -> {
-                    _uiState.update { it.copy(
-                        isLoading = false,
-                        errorMessage = result.apiError.message ?: "Failed to create chore"
-                    )}
-                }
-                else -> {}
-            }
-        }
-    }
+//    fun createChore(
+//        name: String,
+//        description: String?,
+//        dueDate: String
+//    ) {
+//        val assignedIds = _uiState.value.assignedUserIds
+//
+//        if (name.isBlank() || assignedIds.isEmpty()) {
+//            _uiState.update { it.copy(errorMessage = "Name and at least one assignee required") }
+//            return
+//        }
+//
+//        _uiState.update { it.copy(
+//            isLoading = true,
+//            errorMessage = null,
+//            successMessage = null,
+//            isSuccess = false
+//        )}
+//
+//        viewModelScope.launch {
+//            val request = AddChoreRequest(name, description, dueDate, assignedIds)
+//
+//            when (val result = repository.createChore(request)) {
+//                is NetworkResult.Success -> {
+//                    _uiState.update { it.copy(
+//                        isLoading = false,
+//                        isSuccess = true,
+//                        successMessage = "Chore created successfully!"
+//                    )}
+//                }
+//                is NetworkResult.Error -> {
+//                    _uiState.update { it.copy(
+//                        isLoading = false,
+//                        errorMessage = result.apiError.message ?: "Failed to create chore"
+//                    )}
+//                }
+//                else -> {}
+//            }
+//        }
+//    }
 
     fun resetState() {
         _uiState.value = ChoreFormUiState()

@@ -36,10 +36,28 @@ class ChoreDashboardAdapter(
         fun bind(chore: Chore, onComplete: (Chore) -> Unit, onEdit: (Chore) -> Unit) {
             binding.tvChoreName.text = chore.name
 
+            if (chore.status == "COMPLETED") {
+                binding.tvChoreName.paintFlags = binding.tvChoreName.paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
+
+                binding.tvChoreName.setTextColor(ContextCompat.getColor(itemView.context, android.R.color.darker_gray))
+
+                binding.btnCompleteChore.isEnabled = false
+                binding.btnCompleteChore.alpha = 0.5f
+            } else {
+                binding.tvChoreName.paintFlags = binding.tvChoreName.paintFlags and android.graphics.Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                binding.tvChoreName.setTextColor(ContextCompat.getColor(itemView.context, R.color.black))
+                binding.btnCompleteChore.isEnabled = true
+                binding.btnCompleteChore.alpha = 1.0f
+            }
+
             val formattedDate = formatDate(chore.dueDate)
 
             when {
-                chore.isOverdue && chore.status != "COMPLETED" -> {
+                chore.status == "COMPLETED" -> {
+                    binding.tvChoreDueDate.text = "Finished"
+                    binding.tvChoreDueDate.setTextColor(ContextCompat.getColor(itemView.context, android.R.color.darker_gray))
+                }
+                chore.isOverdue -> {
                     binding.tvChoreDueDate.text = "Overdue: $formattedDate"
                     binding.tvChoreDueDate.setTextColor(ContextCompat.getColor(itemView.context, R.color.feature_red))
                 }

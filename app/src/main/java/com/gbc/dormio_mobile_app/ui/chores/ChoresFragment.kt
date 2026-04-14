@@ -72,6 +72,9 @@ class ChoresFragment : Fragment(R.layout.fragment_chores) {
                 viewModel.dashboardState.collect { state ->
                     binding.progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
 
+                    binding.rvTodayChores.alpha = if (state.actionLoading) 0.5f else 1.0f
+                    binding.rvTodayChores.isEnabled = !state.actionLoading
+
                     state.data?.let { data ->
                         binding.tvGreeting.text = data.greeting
                         binding.tvChoresLeftCount.text = "${data.stats.choresLeft} chores Left"

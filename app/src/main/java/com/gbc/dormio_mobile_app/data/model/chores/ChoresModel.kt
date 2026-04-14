@@ -40,6 +40,12 @@ data class AddChoreRequest(
     val assignedUserIds: List<Int>
 )
 
+data class UpdateChoreRequest(
+    val name: String,
+    val description: String?,
+    val dueDate: String?,
+    val assignedUserIds: List<Int>?
+)
 data class Housemate(
     val id: Int,
     val firstName: String,
@@ -59,10 +65,14 @@ data class ChoresDashboardUiState(
 
 data class ChoreFormUiState(
     val isLoading: Boolean = false,
+    val isEditMode: Boolean = false,
+    val initialChoreLoaded: Boolean = false,
     val errorMessage: String? = null,
     val successMessage: String? = null,
     val isSuccess: Boolean = false,
     val housemates: List<Housemate> = emptyList(),
     val selectedDate: String = "",
-    val assignedUserIds: List<Int> = emptyList()
+    val assignedUserIds: List<Int> = emptyList(),
+    val choreName: String = "",
+    val description: String = ""
 )

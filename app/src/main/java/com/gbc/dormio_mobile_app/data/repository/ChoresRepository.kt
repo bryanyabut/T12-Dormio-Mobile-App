@@ -4,6 +4,7 @@ import com.gbc.dormio_mobile_app.data.model.chores.AddChoreRequest
 import com.gbc.dormio_mobile_app.data.model.chores.Chore
 import com.gbc.dormio_mobile_app.data.model.chores.DashboardData
 import com.gbc.dormio_mobile_app.data.model.chores.Housemate
+import com.gbc.dormio_mobile_app.data.model.chores.UpdateChoreRequest
 import com.gbc.dormio_mobile_app.network.ApiServices.ChoresApiService
 import com.gbc.dormio_mobile_app.utils.NetworkResult
 import com.gbc.dormio_mobile_app.utils.handleApiResponse
@@ -33,5 +34,17 @@ class ChoresRepository @Inject constructor(
         val networkResult = safeApiCall { apiService.markChoreComplete(choreId) }
         return handleApiResponse(networkResult)
     }
+
+    suspend fun getChoreById(choreId: Int): NetworkResult<Chore> {
+        val networkResult = safeApiCall { apiService.getChoreById(choreId) }
+        return handleApiResponse(networkResult)
+    }
+
+    suspend fun updateChore(choreId: Int, request: UpdateChoreRequest): NetworkResult<Chore> {
+        val networkResult = safeApiCall { apiService.updateChore(choreId, request) }
+        return handleApiResponse(networkResult)
+    }
+
+
 
 }
