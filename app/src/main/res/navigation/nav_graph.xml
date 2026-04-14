@@ -154,6 +154,11 @@
         android:id="@+id/choreWeeklyFragment"
         android:name="com.gbc.dormio_mobile_app.ui.chores.ChoreWeeklyFragment"
         android:label="Weekly Schedule">
+
+        <action
+            android:id="@+id/action_choreWeeklyFragment_to_addChoreFragment"
+            app:destination="@id/addChoreFragment" />
+
         <action
             android:id="@+id/action_choreWeeklyFragment_to_choresFragment"
             app:destination="@id/choresFragment"

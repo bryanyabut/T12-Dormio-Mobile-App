@@ -3,6 +3,7 @@ package com.gbc.dormio_mobile_app.viewmodel.chores
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gbc.dormio_mobile_app.data.model.chores.Chore
 import com.gbc.dormio_mobile_app.data.model.chores.ChoresDashboardUiState
 import com.gbc.dormio_mobile_app.data.model.chores.DashboardData
 import com.gbc.dormio_mobile_app.data.repository.ChoresRepository
@@ -24,6 +25,9 @@ class ChoresDashboardViewModel @Inject constructor(
     private val _dashboardState = MutableStateFlow(ChoresDashboardUiState(isLoading = true))
     val dashboardState: StateFlow<ChoresDashboardUiState> = _dashboardState.asStateFlow()
 
+    private val _filteredChores = MutableStateFlow<List<Chore>>(emptyList())
+    val filteredChores: StateFlow<List<Chore>> = _filteredChores.asStateFlow()
+
     init {
         getDashboard()
     }
@@ -34,11 +38,14 @@ class ChoresDashboardViewModel @Inject constructor(
 
             when (val result = choresRepository.getChoreDashboard()) {
                 is NetworkResult.Success -> {
+                    val dashboardData = result.data
                     _dashboardState.update { it.copy(
                         isLoading = false,
-                        data = result.data,
+                        data = dashboardData,
                         errorMessage = null
                     )}
+
+                    _filteredChores.value = dashboardData?.todayChores ?: emptyList()
                 }
                 is NetworkResult.Error -> {
                     _dashboardState.update { it.copy(
@@ -80,12 +87,23 @@ class ChoresDashboardViewModel @Inject constructor(
         }
     }
 
+    fun filterChoresByDate(selectedDate: String) {
+        val allChores = _dashboardState.value.data?.todayChores ?: emptyList()
+
+        val filtered = if (selectedDate.isEmpty()) {
+            allChores
+        } else {
+            allChores.filter { chore ->
+                chore.dueDate?.contains(selectedDate) == true
+            }
+        }
+
+        _filteredChores.value = filtered
+    }
     fun clearMessages() {
         _dashboardState.update { it.copy(
             successMessage = null,
             errorMessage = null
         )}
     }
-
-
 }
