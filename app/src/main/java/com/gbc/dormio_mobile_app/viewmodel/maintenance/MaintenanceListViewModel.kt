@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gbc.dormio_mobile_app.data.model.maintenance.*
 import com.gbc.dormio_mobile_app.data.repository.MaintenanceRepository
+import com.gbc.dormio_mobile_app.fcm.MaintenanceUpdateBus
 import com.gbc.dormio_mobile_app.network.TokenManager
 import com.gbc.dormio_mobile_app.utils.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,6 +30,23 @@ class MaintenanceListViewModel @Inject constructor(
         val role = TokenManager.getUserRole(context) ?: UserRole.STUDENT.value
         _uiState.update { it.copy(userRole = role) }
         fetchRequests()
+
+        viewModelScope.launch {
+            MaintenanceUpdateBus.updatesFlow.collect { (id, status, user) ->
+                val requestId = id.toInt()
+
+                _uiState.update { currentState ->
+                    val updatedList = currentState.maintenanceRequests.map { request ->
+                        if (request.id == requestId) {
+                            request.copy(status = status)
+                        } else {
+                            request
+                        }
+                    }
+                    currentState.copy(maintenanceRequests = updatedList)
+                }
+            }
+        }
     }
 
     fun fetchRequests(isRefresh: Boolean = false) {

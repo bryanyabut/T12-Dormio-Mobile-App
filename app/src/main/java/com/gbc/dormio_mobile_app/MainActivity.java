@@ -38,6 +38,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(this,
+                    android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+
+                androidx.core.app.ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
+            }
+        }
+
         IntentFilter filter = new IntentFilter(TokenManager.ACTION_SESSION_EXPIRED);
         registerReceiver(sessionExpiredReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
 
@@ -80,6 +89,39 @@ public class MainActivity extends AppCompatActivity {
                 bottomNav.setVisibility(View.GONE);
             }
         });
+
+        handleNotificationIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleNotificationIntent(intent);
+    }
+
+    private void handleNotificationIntent(Intent intent) {
+        if (intent != null && intent.hasExtra("REQUEST_ID")) {
+            String requestId = intent.getStringExtra("REQUEST_ID");
+
+            if (requestId != null) {
+                NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                        .findFragmentById(R.id.nav_host_fragment);
+
+                if (navHostFragment != null) {
+                    NavController navController = navHostFragment.getNavController();
+
+                    Bundle bundle = new Bundle();
+                    try {
+                        bundle.putInt("requestId", Integer.parseInt(requestId));
+
+                        navController.navigate(R.id.maintenanceDetailFragment, bundle);
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
     }
 
     @Override
