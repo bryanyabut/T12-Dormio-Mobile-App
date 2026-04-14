@@ -51,5 +51,8 @@ object Constants {
     const val API_CHORES_UPDATE = "chores/{id}"
     const val API_CHORES_BY_ID = "chores/{id}"
 
+    //SCHEDULE / CALENDAR ENDPOINTS
+    const val API_CALENDAR = "calendar"
+    const val API_CALENDAR_DETAIL = "calendar/{id}"
 
 }
