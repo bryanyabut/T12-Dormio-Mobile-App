@@ -101,24 +101,38 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleNotificationIntent(Intent intent) {
-        if (intent != null && intent.hasExtra("REQUEST_ID")) {
+        if (intent == null) return;
+
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
+
+        if (navHostFragment == null) return;
+        NavController navController = navHostFragment.getNavController();
+
+        //Handle Maintenance Request Notifications
+        if (intent.hasExtra("REQUEST_ID")) {
             String requestId = intent.getStringExtra("REQUEST_ID");
-
             if (requestId != null) {
-                NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
-                        .findFragmentById(R.id.nav_host_fragment);
-
-                if (navHostFragment != null) {
-                    NavController navController = navHostFragment.getNavController();
-
+                try {
                     Bundle bundle = new Bundle();
-                    try {
-                        bundle.putInt("requestId", Integer.parseInt(requestId));
+                    bundle.putInt("requestId", Integer.parseInt(requestId));
+                    navController.navigate(R.id.maintenanceDetailFragment, bundle);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
-                        navController.navigate(R.id.maintenanceDetailFragment, bundle);
-                    } catch (NumberFormatException e) {
-                        e.printStackTrace();
-                    }
+        //Handle Chore Notifications
+        if (intent.hasExtra("CHORE_ID")) {
+            String choreId = intent.getStringExtra("CHORE_ID");
+            if (choreId != null) {
+                try {
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("choreId", Integer.parseInt(choreId));
+                    navController.navigate(R.id.addChoreFragment, bundle);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
                 }
             }
         }

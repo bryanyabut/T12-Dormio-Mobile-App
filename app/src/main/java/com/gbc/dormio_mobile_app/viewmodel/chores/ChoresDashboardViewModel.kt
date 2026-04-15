@@ -7,6 +7,7 @@ import com.gbc.dormio_mobile_app.data.model.chores.Chore
 import com.gbc.dormio_mobile_app.data.model.chores.ChoresDashboardUiState
 import com.gbc.dormio_mobile_app.data.model.chores.DashboardData
 import com.gbc.dormio_mobile_app.data.repository.ChoresRepository
+import com.gbc.dormio_mobile_app.fcm.ChoreUpdateBus
 import com.gbc.dormio_mobile_app.utils.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -30,6 +31,12 @@ class ChoresDashboardViewModel @Inject constructor(
 
     init {
         getDashboard()
+
+        viewModelScope.launch{
+            ChoreUpdateBus.updatesFlow.collect {
+                getDashboard()
+            }
+        }
     }
 
     fun getDashboard() {

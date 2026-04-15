@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.gbc.dormio_mobile_app.MainActivity
 import com.gbc.dormio_mobile_app.data.model.maintenance.RequestStatus
 import com.gbc.dormio_mobile_app.data.model.UserDto
 import com.gbc.dormio_mobile_app.network.FcmTokenManager
@@ -36,37 +37,50 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             val message = data["message"] ?: notificationBody ?: ""
 
             when(type) {
-                "maintenance_update" -> {
-                    val requestId = data["request_id"] ?: return
-                    val statusString = data["status"] ?: ""
+                "maintenance_update", "maintenance_request" -> {
+                    val requestId = data["REQUEST_ID"] ?: return
 
-                    val status = try {
-                        RequestStatus.valueOf(statusString.uppercase())
-                    } catch (e: Exception) {
-                        RequestStatus.PENDING
+                    if (type == "maintenance_update") {
+                        val statusString = data["status"] ?: ""
+                        val status = try {
+                            RequestStatus.valueOf(statusString.uppercase())
+                        } catch (e: Exception) {
+                            RequestStatus.PENDING
+                        }
+
+                        val user = UserDto(
+                            id = data["user_id"]?.toInt() ?: 0,
+                            firstName = data["user_firstName"] ?: "",
+                            lastName = data["user_lastName"] ?: "",
+                            email = data["user_email"] ?: "",
+                            role = "STUDENT"
+                        )
+
+                        MaintenanceUpdateBus.post(requestId, status, user)
                     }
 
-                    val user = UserDto(
-                        id = data["user_id"]?.toInt() ?: 0,
-                        firstName = data["user_firstName"] ?: "",
-                        lastName = data["user_lastName"] ?: "",
-                        email = data["user_email"] ?: "",
-                        role = "STUDENT"
-                    )
+                    sendNotification(title, message, requestId, false)
+                }
 
-                    MaintenanceUpdateBus.post(requestId, status, user)
+                "chore_assignment", "chore_update" -> {
+                    val choreId = data["choreId"] ?: ""
+                    val status = data["status"] ?: "PENDING"
 
-                    sendNotification(title, message, requestId)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        ChoreUpdateBus.post(choreId, status)
+                    }
+
+                    sendNotification(title, message, choreId, true)
                 }
 
                 "general_message" -> {
-                    sendNotification(title, message, null)
+                    sendNotification(title, message, null, false)
                 }
             }
         }
     }
 
-    private fun sendNotification(title: String, message: String, requestId: String?) {
+    private fun sendNotification(title: String, message: String, id: String?, isChore: Boolean) {
         val channelId = "maintenance_channel"
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
@@ -81,9 +95,15 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             manager.createNotificationChannel(channel)
         }
 
-        val intent = Intent(this, com.gbc.dormio_mobile_app.MainActivity::class.java).apply {
+        val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            requestId?.let { putExtra("REQUEST_ID", it) }
+            id?.let {
+                if (isChore) {
+                    putExtra("CHORE_ID", it)
+                } else {
+                    putExtra("REQUEST_ID", it)
+                }
+            }
         }
 
         val pendingIntent = PendingIntent.getActivity(
