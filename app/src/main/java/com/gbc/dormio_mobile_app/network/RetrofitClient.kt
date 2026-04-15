@@ -6,6 +6,8 @@ import com.gbc.dormio_mobile_app.network.ApiServices.ChoresApiService
 import com.gbc.dormio_mobile_app.network.ApiServices.MaintenanceApiService
 import com.gbc.dormio_mobile_app.network.ApiServices.MealPlanApiService
 import com.gbc.dormio_mobile_app.network.ApiServices.ProfileApiService
+import com.gbc.dormio_mobile_app.network.ApiServices.BillApiService
+import com.gbc.dormio_mobile_app.network.ApiServices.ExpenseApiService
 import com.gbc.dormio_mobile_app.network.ApiServices.ScheduleApiService
 import com.gbc.dormio_mobile_app.utils.Constants
 import dagger.Module
@@ -131,6 +133,20 @@ object NetworkModule {
     @Singleton
     fun provideScheduleApiService(retrofit: Retrofit): ScheduleApiService {
         return retrofit.create(ScheduleApiService::class.java)
+    }
+
+    //bill api service provider
+    @Provides
+    @Singleton
+    fun provideBillApiService(retrofit: Retrofit): BillApiService {
+        return retrofit.create(BillApiService::class.java)
+    }
+
+    //expense api service provider
+    @Provides
+    @Singleton
+    fun provideExpenseApiService(retrofit: Retrofit): ExpenseApiService {
+        return retrofit.create(ExpenseApiService::class.java)
     }
 
 }
