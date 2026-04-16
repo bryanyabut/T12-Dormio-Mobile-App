@@ -7,6 +7,7 @@ import com.gbc.dormio_mobile_app.data.model.chores.AddChoreRequest
 import com.gbc.dormio_mobile_app.data.model.chores.ChoreFormUiState
 import com.gbc.dormio_mobile_app.data.model.chores.UpdateChoreRequest
 import com.gbc.dormio_mobile_app.data.repository.ChoresRepository
+import com.gbc.dormio_mobile_app.fcm.ChoreUpdateBus
 import com.gbc.dormio_mobile_app.network.TokenManager
 import com.gbc.dormio_mobile_app.utils.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,12 +30,26 @@ class AddChoreViewModel @Inject constructor(
 
     init {
         fetchHousemates()
+
+        viewModelScope.launch {
+            ChoreUpdateBus.updatesFlow.collect { event ->
+                val currentChoreId = _uiState.value.loadedChoreId
+
+                if(currentChoreId != null && event.choreId == currentChoreId.toString()){
+                    loadChoreForEditing(currentChoreId)
+                }
+
+                fetchHousemates()
+            }
+        }
     }
 
     fun loadChoreForEditing(choreId: Int) {
         _uiState.update { it.copy(
             isLoading = true,
-            isEditMode = true) }
+            isEditMode = true,
+            loadedChoreId = choreId
+        ) }
 
         viewModelScope.launch {
             when (val result = repository.getChoreById(choreId)) {

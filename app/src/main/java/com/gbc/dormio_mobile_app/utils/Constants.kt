@@ -55,4 +55,7 @@ object Constants {
     const val API_CALENDAR = "calendar"
     const val API_CALENDAR_DETAIL = "calendar/{id}"
 
+    //NOTIFICATIONS ENDPOINTS
+    const val API_NOTIFICATIONS = "notifications"
+
 }

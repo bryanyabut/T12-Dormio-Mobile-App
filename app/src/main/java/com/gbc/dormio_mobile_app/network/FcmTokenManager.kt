@@ -26,12 +26,12 @@ class FcmTokenManager @Inject constructor(private val authApiService: AuthApiSer
         return prefs.getString(keyToken, null)
     }
 
-    suspend fun resendTokenIfAvailable(context: Context) {
+    suspend fun resendTokenIfAvailable(context: Context, force: Boolean = false) {
         val prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
         val token = getToken(context) ?: return
         val lastSent = prefs.getString(keyLastSent, null)
 
-        if (token == lastSent) {
+        if (!force && token == lastSent) {
             Log.d("FCM", "Token already sent, skipping resend")
             return
         }
@@ -55,6 +55,22 @@ class FcmTokenManager @Inject constructor(private val authApiService: AuthApiSer
         val response = authApiService.updateDeviceToken(request)
         if (!response.isSuccessful) {
             throw Exception("Failed to send device token: ${response.code()} ${response.message()}")
+        }
+    }
+
+    suspend fun clearTokenOnServer(context: Context) = withContext(Dispatchers.IO) {
+        try {
+            val request = DeviceTokenRequest(deviceToken = "")
+            val response = authApiService.updateDeviceToken(request)
+
+            if (response.isSuccessful) {
+                val prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+                prefs.edit().remove(keyLastSent).apply()
+
+                Log.d("FCM", "Token cleared on server and local record reset")
+            }
+        } catch (e: Exception) {
+            Log.e("FCM", "Error clearing token on server: ${e.message}")
         }
     }
 }

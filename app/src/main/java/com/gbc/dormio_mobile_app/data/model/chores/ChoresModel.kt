@@ -66,6 +66,7 @@ data class ChoresDashboardUiState(
 data class ChoreFormUiState(
     val isLoading: Boolean = false,
     val isEditMode: Boolean = false,
+    val loadedChoreId: Int? = null,
     val initialChoreLoaded: Boolean = false,
     val errorMessage: String? = null,
     val successMessage: String? = null,

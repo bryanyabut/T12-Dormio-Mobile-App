@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.gbc.dormio_mobile_app.MainActivity
 import com.gbc.dormio_mobile_app.data.model.maintenance.RequestStatus
 import com.gbc.dormio_mobile_app.data.model.UserDto
 import com.gbc.dormio_mobile_app.network.FcmTokenManager
@@ -25,90 +26,116 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     lateinit var fcmTokenManager: FcmTokenManager
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        Log.d("FCM", "Received message from: ${remoteMessage.data}")
+        Log.d("FCM", "Received message: ${remoteMessage.data}")
+
+        val notificationTitle = remoteMessage.notification?.title
+        val notificationBody = remoteMessage.notification?.body
+
         remoteMessage.data.takeIf { it.isNotEmpty() }?.let { data ->
+            val type = data["type"]
+            val title = data["title"] ?: notificationTitle ?: "Dormio Update"
+            val message = data["message"] ?: notificationBody ?: ""
 
-            when(data["type"]) {
-                "maintenance_update" -> {
-                    val requestId = data["request_id"] ?: return
-                    val statusString = data["status"] ?: return
-                    val status = try {
-                        RequestStatus.valueOf(statusString.uppercase())
-                    } catch (e: IllegalArgumentException) { return }
+            when(type) {
+                "maintenance_update", "maintenance_request" -> {
+                    val requestId = data["REQUEST_ID"] ?: return
 
-                    val user = UserDto(
-                        id = data["user_id"]?.toInt() ?: 0,
-                        firstName = data["user_firstName"] ?: "",
-                        lastName = data["user_lastName"] ?: "",
-                        email = data["user_email"] ?: "",
-                        role = data["user_role"] ?: ""
-                    )
+                    if (type == "maintenance_update") {
+                        val statusString = data["status"] ?: ""
+                        val status = try {
+                            RequestStatus.valueOf(statusString.uppercase())
+                        } catch (e: Exception) {
+                            RequestStatus.PENDING
+                        }
 
-                    MaintenanceUpdateBus.post(requestId, status, user)
+                        val user = UserDto(
+                            id = data["user_id"]?.toInt() ?: 0,
+                            firstName = data["user_firstName"] ?: "",
+                            lastName = data["user_lastName"] ?: "",
+                            email = data["user_email"] ?: "",
+                            role = "STUDENT"
+                        )
 
-                    //show notification to student
-                    val title = data["title"] ?: "Maintenance Update"
-                    val message = data["message"] ?: "Your maintenance request has been updated."
-                    sendNotification(title, message, requestId)
+                        MaintenanceUpdateBus.post(requestId, status, user)
+                    }
+
+                    sendNotification(title, message, requestId, false)
+                }
+
+                "chore_assignment", "chore_update" -> {
+                    val choreId = data["CHORE_ID"] ?: ""
+                    val status = data["status"] ?: "PENDING"
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        ChoreUpdateBus.post(choreId, status)
+                    }
+
+                    sendNotification(title, message, choreId, true)
                 }
 
                 "general_message" -> {
-                    val title = data["title"] ?: "Notification"
-                    val message = data["message"] ?: ""
-                    sendNotification(title, message, null)
-                }
-
-                else -> {
-                    Log.w("FCM", "Unknown message type: ${data["type"]}")
+                    sendNotification(title, message, null, false)
                 }
             }
         }
     }
 
-    private fun sendNotification(title: String, message: String, requestId: String?) {
+    private fun sendNotification(title: String, message: String, id: String?, isChore: Boolean) {
         val channelId = "maintenance_channel"
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, "Maintenance Notifications", NotificationManager.IMPORTANCE_HIGH)
+            val channel = NotificationChannel(
+                channelId,
+                "Maintenance Notifications",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Updates for maintenance requests and chores"
+            }
             manager.createNotificationChannel(channel)
         }
 
-//        val intent = Intent(this, MaintenanceActivity::class.java).apply {
-//            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-//            requestId?.let { putExtra("REQUEST_ID", it) }
-//        }
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            id?.let {
+                if (isChore) {
+                    putExtra("CHORE_ID", it)
+                } else {
+                    putExtra("REQUEST_ID", it)
+                }
+            }
+        }
 
-//        val pendingIntent = PendingIntent.getActivity(
-//            this,
-//            System.currentTimeMillis().toInt(),
-//            intent,
-//            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-//        )
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            System.currentTimeMillis().toInt(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
-//        val notification = NotificationCompat.Builder(this, channelId)
-//            .setContentTitle(title)
-//            .setContentText(message)
-//            .setSmallIcon(android.R.drawable.ic_dialog_info)
-//            .setAutoCancel(true)
-//            .setContentIntent(pendingIntent)
-//            .build()
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            .build()
 
-//        manager.notify(System.currentTimeMillis().toInt(), notification)
+        manager.notify(System.currentTimeMillis().toInt(), notification)
     }
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Log.d("FCM", "New FCM token: $token")
+        Log.d("FCM", "New Token generated: $token")
         fcmTokenManager.saveTokenLocally(applicationContext, token)
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 fcmTokenManager.resendTokenIfAvailable(applicationContext)
             } catch (e: Exception) {
-                Log.e("FCM", "Failed to send FCM token to server: ${e.message}")
+                Log.e("FCM", "Failed to sync token: ${e.message}")
             }
         }
     }
-
 }
