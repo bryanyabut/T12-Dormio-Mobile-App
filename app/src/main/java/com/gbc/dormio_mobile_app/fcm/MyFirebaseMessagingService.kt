@@ -63,7 +63,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 }
 
                 "chore_assignment", "chore_update" -> {
-                    val choreId = data["choreId"] ?: ""
+                    val choreId = data["CHORE_ID"] ?: ""
                     val status = data["status"] ?: "PENDING"
 
                     CoroutineScope(Dispatchers.IO).launch {

@@ -11,8 +11,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gbc.dormio_mobile_app.R
 import com.gbc.dormio_mobile_app.data.model.notification.NotificationModel
 import com.gbc.dormio_mobile_app.data.model.notification.NotificationType
+import com.gbc.dormio_mobile_app.data.model.notification.getFormattedTime
 
-class NotificationAdapter(private val items: List<NotificationModel>) :
+class NotificationAdapter(private var items: List<NotificationModel>) :
     RecyclerView.Adapter<NotificationAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -23,6 +24,12 @@ class NotificationAdapter(private val items: List<NotificationModel>) :
         val icon: ImageView = view.findViewById(R.id.notifIcon)
         val iconBg: View = view.findViewById(R.id.iconBackground)
     }
+
+    fun updateItems(newItems: List<NotificationModel>) {
+        this.items = newItems
+        notifyDataSetChanged()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_notification, parent, false)
@@ -35,7 +42,8 @@ class NotificationAdapter(private val items: List<NotificationModel>) :
 
         holder.title.text = item.title
         holder.message.text = item.message
-        holder.time.text = "Just now"
+
+        holder.time.text = item.getFormattedTime()
 
         val (colorRes, iconRes) = when (item.type) {
             NotificationType.BILL -> R.color.feature_green to R.drawable.outline_attach_money_24
@@ -49,7 +57,6 @@ class NotificationAdapter(private val items: List<NotificationModel>) :
         holder.card.strokeColor = color
         holder.icon.setImageResource(iconRes)
         holder.icon.imageTintList = ColorStateList.valueOf(color)
-
         holder.iconBg.backgroundTintList = ColorStateList.valueOf(color).withAlpha(30)
     }
 
