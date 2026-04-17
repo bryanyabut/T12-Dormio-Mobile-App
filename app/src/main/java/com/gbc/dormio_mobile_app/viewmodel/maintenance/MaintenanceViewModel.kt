@@ -8,6 +8,7 @@ import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceDetailUiState
 import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceFormUiState
 import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceResponse
 import com.gbc.dormio_mobile_app.data.repository.MaintenanceRepository
+import com.gbc.dormio_mobile_app.fcm.MaintenanceUpdateBus
 import com.gbc.dormio_mobile_app.network.TokenManager
 import com.gbc.dormio_mobile_app.utils.FileHandle
 import com.gbc.dormio_mobile_app.utils.NetworkResult
@@ -35,6 +36,25 @@ class MaintenanceViewModel @Inject constructor(
     init {
         val role = TokenManager.getUserRole(context)
         _formState.update { it.copy(userRole = role) }
+
+        viewModelScope.launch {
+            MaintenanceUpdateBus.updatesFlow.collect { (id, status, _) ->
+                val requestIdFromBus = id.toInt()
+                val currentState = _detailState.value
+
+                if (currentState is NetworkResult.Success) {
+                    val requestDto = currentState.data.data
+
+                    if (requestDto.id == requestIdFromBus) {
+                        val updatedDto = requestDto.copy(status = status)
+
+                        val updatedResponse = currentState.data.copy(data = updatedDto)
+
+                        _detailState.value = NetworkResult.Success(updatedResponse)
+                    }
+                }
+            }
+        }
     }
 
     fun getRequestDetail(requestId: Int) {

@@ -10,7 +10,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
@@ -60,42 +62,50 @@ class MaintenanceDetailFragment : Fragment(R.layout.fragment_maintenance_detail)
 
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.detailState.collect { result: NetworkResult<MaintenanceResponse> ->
-                when (result) {
-                    is NetworkResult.Success -> {
-                        populateFields(result.data.data)
-                    }
-                    is NetworkResult.Error -> {
-                        binding.progressBar.visibility = View.GONE
-                        Toast.makeText(context, result.apiError.message, Toast.LENGTH_SHORT).show()
-                    }
-                    is NetworkResult.Loading -> {
-                        binding.progressBar.visibility = View.VISIBLE
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.detailState.collect { result: NetworkResult<MaintenanceResponse> ->
+                        when (result) {
+                            is NetworkResult.Success -> {
+                                populateFields(result.data.data)
+                            }
+
+                            is NetworkResult.Error -> {
+                                binding.progressBar.visibility = View.GONE
+                                Toast.makeText(context, result.apiError.message, Toast.LENGTH_SHORT)
+                                    .show()
+                            }
+
+                            is NetworkResult.Loading -> {
+                                binding.progressBar.visibility = View.VISIBLE
+                            }
+                        }
                     }
                 }
-            }
-        }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.formState.collect { state ->
-                binding.progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
+                launch {
+                    viewModel.formState.collect { state ->
+                        binding.progressBar.visibility =
+                            if (state.isLoading) View.VISIBLE else View.GONE
 
-                state.successMessage?.let { message ->
-                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                        state.successMessage?.let { message ->
+                            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
 
-                    if (message.contains("deleted", ignoreCase = true)) {
-                        findNavController().popBackStack()
-                    } else {
-                        toggleEditMode(false)
-                        viewModel.getRequestDetail(args.requestId)
+                            if (message.contains("deleted", ignoreCase = true)) {
+                                findNavController().popBackStack()
+                            } else {
+                                toggleEditMode(false)
+                                viewModel.getRequestDetail(args.requestId)
+                            }
+
+                            viewModel.resetFormState()
+                        }
+
+                        state.errorMessage?.let { error ->
+                            Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
+                            viewModel.resetFormState()
+                        }
                     }
-
-                    viewModel.resetFormState()
-                }
-
-                state.errorMessage?.let { error ->
-                    Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
-                    viewModel.resetFormState()
                 }
             }
         }

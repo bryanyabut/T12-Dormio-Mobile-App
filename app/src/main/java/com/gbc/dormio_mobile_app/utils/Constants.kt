@@ -67,4 +67,8 @@ object Constants {
     const val API_EXPENSES = "expenses"
     const val API_EXPENSE_DETAIL = "expenses/{id}"
 
+
+    //NOTIFICATIONS ENDPOINTS
+    const val API_NOTIFICATIONS = "notifications"
+
 }
