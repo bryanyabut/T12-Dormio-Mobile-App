@@ -55,6 +55,19 @@ object Constants {
     const val API_CALENDAR = "calendar"
     const val API_CALENDAR_DETAIL = "calendar/{id}"
 
+    //BILL ENDPOINTS
+    const val API_BILLS = "bills"
+    const val API_BILL_DETAIL = "bills/{id}"
+    const val API_BILL_MY_SHARES = "bills/my-shares"
+    const val API_BILL_SPLIT = "bills/{id}/split"
+    const val API_BILL_SHARES = "bills/{id}/shares"
+    const val API_BILL_SHARE_PAY = "bills/{id}/shares/{shareId}/pay"
+
+    //EXPENSE ENDPOINTS
+    const val API_EXPENSES = "expenses"
+    const val API_EXPENSE_DETAIL = "expenses/{id}"
+
+
     //NOTIFICATIONS ENDPOINTS
     const val API_NOTIFICATIONS = "notifications"
 
