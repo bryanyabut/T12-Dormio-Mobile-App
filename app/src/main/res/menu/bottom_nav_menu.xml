@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/homeFragment"
+        android:icon="@drawable/ic_house"
+        android:title="Home" />
+
+    <item
+        android:id="@+id/notificationsFragment"
+        android:icon="@android:drawable/ic_popup_reminder"
+        android:title="Alerts" />
+
+    <item
+        android:id="@+id/scheduleFragment"
+        android:icon="@drawable/outline_calendar_month_24"
+        android:title="Schedule" />
+
+    <item
+        android:id="@+id/accountSettingsFragment"
+        android:icon="@drawable/outline_account_circle_24"
+        android:title="Profile" />
+
+</menu>

@@ -1,0 +1,82 @@
+package com.gbc.dormio_mobile_app.network.ApiServices
+
+import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceListResponse
+import com.gbc.dormio_mobile_app.data.model.maintenance.MaintenanceResponse
+import com.gbc.dormio_mobile_app.data.model.maintenance.UpdateMaintenanceStatusDto
+import com.gbc.dormio_mobile_app.utils.Constants
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.Multipart
+import retrofit2.http.PATCH
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Part
+import retrofit2.http.Path
+import retrofit2.http.Query
+
+interface MaintenanceApiService {
+
+    //Student endpoints
+    @Multipart
+    @POST(Constants.API_MAINTENANCE_REQUESTS_CREATE)
+    suspend fun createRequest(
+        @Part("title") title: RequestBody,
+        @Part("description") description: RequestBody,
+        @Part("urgency") urgency: RequestBody,
+        @Part image: MultipartBody.Part?
+    ): Response<MaintenanceResponse>
+
+    @GET(Constants.API_MAINTENANCE_MY_REQUESTS)
+    suspend fun getMyRequests(
+        @Query("search") search: String? = null,
+        @Query("status") status: String? = null,
+        @Query("urgency") urgency: String? = null,
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 20,
+        @Query("sortBy") sortBy: String = "createdAt",
+        @Query("sortOrder") sortOrder: String = "desc"
+    ): Response<MaintenanceListResponse>
+
+    @GET(Constants.API_MAINTENANCE_REQUEST_DETAIL_STUDENT)
+    suspend fun getRequestDetailStudent(@Path("id") requestId: Int): Response<MaintenanceResponse>
+
+    @Multipart
+    @PUT(Constants.API_MAINTENANCE_REQUEST_UPDATE_STUDENT)
+    suspend fun updateRequestStudent(
+        @Path("id") requestId: Int,
+        @Part("title") title: RequestBody? = null,
+        @Part("description") description: RequestBody? = null,
+        @Part("urgency") urgency: RequestBody? = null,
+        @Part image: MultipartBody.Part? = null
+    ): Response<MaintenanceResponse>
+
+    //Admin endpoints
+    @GET(Constants.API_MAINTENANCE_REQUESTS_ALL)
+    suspend fun getAllRequests(
+        @Query("search") search: String? = null,
+        @Query("status") status: String? = null,
+        @Query("urgency") urgency: String? = null,
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 20,
+        @Query("sortBy") sortBy: String = "createdAt",
+        @Query("sortOrder") sortOrder: String = "desc"
+    ): Response<MaintenanceListResponse>
+
+    @GET(Constants.API_MAINTENANCE_REQUEST_DETAIL_ADMIN)
+    suspend fun getRequestDetailAdmin(@Path("id") requestId: Int): Response<MaintenanceResponse>
+
+    @PATCH(Constants.API_MAINTENANCE_REQUEST_UPDATE_STATUS)
+    suspend fun updateRequestStatus(
+        @Path("id") requestId: Int,
+        @Body request: UpdateMaintenanceStatusDto
+    ): Response<MaintenanceResponse>
+
+    //Both user endpoints
+    @DELETE(Constants.API_MAINTENANCE_REQUEST_DELETE)
+    suspend fun deleteRequest(@Path("id") requestId: Int): Response<MaintenanceResponse>
+
+}
