@@ -26,3 +26,9 @@ Android application for the Dormio student-housing platform. Dormio helps housem
 ```bash
 git clone https://github.com/bryanyabut/T12-Dormio-Mobile-App.git
 cd T12-Dormio-Mobile-App
+```
+
+## Known limitations / demo notes
+
+- **API endpoint**: The app is configured for local development using `http://10.0.2.2:3000/api/v1/`, which is reachable only from an Android emulator. For production deployment, update `BASE_URL` in `utils/Constants.kt` to a public HTTPS endpoint and remove `usesCleartextTraffic` from `AndroidManifest.xml`.
+- **Test credentials**: `LoginTestActivity` contains dummy credentials and is not part of the app flow; it can be ignored.
