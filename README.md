@@ -32,10 +32,13 @@ cd T12-Dormio-Mobile-App
 
 - **bob.smith@example.com / pass456**
 - **john.doe@example.com / pass123**
+- **admin@dormio.com / adminpass**
 
 These accounts are pre-populated with sample data to showcase features like chores, bills, and schedules.
 Also contain address for roommate related functionality which may not be available when registering a new user account.
 Creation of user and login with user account still works but with limited functionality.
+
+Use the admin account to test admin-only features in maintenance requests
 
 ## Known limitations / demo notes
 
