@@ -2,11 +2,13 @@ package com.gbc.dormio_mobile_app.viewmodel.profile
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gbc.dormio_mobile_app.data.model.profile.ProfileUiState
 import com.gbc.dormio_mobile_app.data.model.profile.ProfileUpdateRequest
 import com.gbc.dormio_mobile_app.data.repository.ProfileRepository
+import com.gbc.dormio_mobile_app.network.FcmTokenManager
 import com.gbc.dormio_mobile_app.network.TokenManager
 import com.gbc.dormio_mobile_app.utils.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val repository: ProfileRepository,
+    private val fcmTokenManager: FcmTokenManager,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -110,6 +113,23 @@ class ProfileViewModel @Inject constructor(
 
     fun resetUpdateStatus() {
         _uiState.update { it.copy(isUpdateSuccessful = false) }
+    }
+
+    fun logout(onComplete: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                fcmTokenManager.clearTokenOnServer(context)
+                context.getSharedPreferences("dormio_prefs", Context.MODE_PRIVATE)
+                    .edit()
+                    .remove("last_sent_token")
+                    .apply()
+            } catch (e: Exception) {
+                Log.e("ProfileViewModel", "FCM cleanup failed: ${e.message}")
+            } finally {
+                TokenManager.clearToken(context)
+                onComplete()
+            }
+        }
     }
 
 }

@@ -76,13 +76,12 @@ class AccountSettingsFragment : Fragment(R.layout.activity_account_settings) {
 
     private fun setupButtons() {
         binding.logoutButton.setOnClickListener {
-            clearToken(requireContext())
-
-            val intent = Intent(requireContext(), LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-
-            activity?.finish()
+            viewModel.logout {
+                val intent = Intent(requireContext(), LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                activity?.finish()
+            }
         }
     }
 
