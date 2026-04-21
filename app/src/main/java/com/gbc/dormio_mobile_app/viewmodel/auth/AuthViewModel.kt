@@ -39,8 +39,9 @@ class AuthViewModel @Inject constructor(
                     TokenManager.saveToken(appContext, jwt, role)
 
                     //immediately attempt to resend FCM token after login
-                    viewModelScope.launch {
+                    viewModelScope.launch(Dispatchers.IO) {
                         try {
+                            kotlinx.coroutines.delay(500)
                             fcmTokenManager.resendTokenIfAvailable(appContext, force = true)
                         } catch (e: Exception) {
                             Log.e("FCM", "Failed to resend FCM token after login: ${e.message}")
